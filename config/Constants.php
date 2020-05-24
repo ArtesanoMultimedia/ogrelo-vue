@@ -1,5 +1,5 @@
 <?php
 
-define("DEFAULT_CONTROLLER", "Reservas");
+define("DEFAULT_CONTROLLER", "Vue");
 define("DEFAULT_ACTION", "index");
 define("DEBUG", false);

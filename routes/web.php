@@ -4,13 +4,18 @@ use OGrelo\core\ResourceRoute;
 use OGrelo\core\Router;
 use OGrelo\core\Exceptions\RouteNotFoundException;
 
-$ajax = new Router('ajax/');
 $router = new Router('');
+$assets = new Router('assets/');
+$ajax = new Router('ajax/');
 
 // Establecemos la ruta principal, las constantes se definen en config/Constants.php
 
 $router->get('/', function() {
     to(implode('#', [DEFAULT_CONTROLLER, DEFAULT_ACTION]));
+});
+
+$assets->get('/js/([\w]+)*.js', function() {
+    to('vue#jsasset');
 });
 
 // Sobreescribimos la ruta principal para redirigir al index
