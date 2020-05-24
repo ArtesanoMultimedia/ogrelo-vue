@@ -1,0 +1,37 @@
+{% extends 'common/layout.html' %}
+
+{% block navbar_top_links %}
+    <li><a href="/reservas/proximas24horas" id="boton24h" class="hidden">
+            <span class="d-sm-inline">
+                <i class="fa fa-bell fa-fw"></i> Hay reservas en las </span>Próximas 24 horas</a></li>
+    <li><a href="/" id="botonTodas" class="">
+            <i class="fa fa-calendar-times fa-fw"></i> Ver todas las reservas</a></li>
+    <li><a href="/reservas/create" id="botonNueva" class="">
+            <i class="fa fa-plus"></i> Nueva reserva</a></li>
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        $(function () {
+            let $boton24h = $('#boton24h');
+            {% if index24horas is not defined %}
+            $boton24h.removeClass('hidden');
+            {% endif %}
+
+            compruebaReservas24Horas();
+            setInterval(compruebaReservas24Horas, 60000);
+
+            function compruebaReservas24Horas() {
+                let url = '/ajax/reservas/proximas24horas/count';
+                $.getJSON(url, function (res) {
+                    if (res.num_reservas && res.num_reservas > 0) {
+                        $boton24h.fadeIn();
+                    } else {
+                        $boton24h.fadeOut();
+                    }
+                });
+            }
+
+        });
+    </script>
+{% endblock %}

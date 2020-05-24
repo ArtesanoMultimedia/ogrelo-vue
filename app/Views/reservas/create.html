@@ -1,0 +1,209 @@
+{% extends 'reservas/layout.html' %}
+
+{% block title %}Restaurante O Grelo - Nueva reserva{% endblock %}
+{% block page_title %}Nueva reserva{% endblock %}
+
+{% block content %}
+
+    {% include 'reservas/_form.html' with {'form_action': '/reservas', 'form_method': 'POST'} %}
+
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        $(function () {
+
+            let $fecha = $('#fecha');
+
+            inicializaSelectorFechaYHora();
+
+            escuchaEnvioFormulario();
+
+            function inicializaSelectorFechaYHora() {
+                let date = new Date();
+                $fecha.datetimepicker({
+                    datepicker: {
+                        minDate: date,
+                        weekStartDay: 1,
+                        disableDaysOfWeek: [1, 7],
+                    },
+                    min: "12:30 am",
+                    max: "12:30 pm",
+                    footer: true,
+                    format: 'dd/mm/yyyy HH:MM',
+                    locale: 'es-es',
+                    modal: true,
+                    uiLibrary: 'bootstrap',
+                });
+            }
+
+            function escuchaEnvioFormulario() {
+                $('#form').submit(function (e) {
+                    e.preventDefault();
+
+                    let campos = ['nombre', 'apellidos', 'telefono', 'fecha', 'comensales', 'comentarios'];
+
+                    limpiaErrores(campos);
+
+                    let errors = validaFormularioYDevuelveSiHayErrores();
+
+                    marcaCamposSinErroresComoValidos(campos);
+
+                    // Si ha habido errores, detenemoms la ejecución
+                    if (errors) {
+                        return;
+                    }
+
+                    // Si no ha habido errores, enviamos el formulario
+                    let data = $(this).serialize();
+
+                    let url = $(this).attr('action');
+                    let type = $(this).attr('method');
+
+                    $.post({url, type, data}).done(data => {
+                        muestraModalResultado(data);
+                    })
+                });
+            }
+
+            function limpiaErrores(campos) {
+                campos.forEach((campo) => {
+                    $('#error-' + campo).html('').hide('fast');
+                    $('#group-' + campo).removeClass('has-error');
+                    $('#group-' + campo).removeClass('has-success');
+                });
+            }
+
+            function validaFormularioYDevuelveSiHayErrores() {
+                let errors = validaCamposObligatoriosYDevuelveSiHayErrores();
+                errors = validaTelefonoYDevuelveSiHayErrores() || errors;
+                errors = validaComensalesYDevuelveSiHayErrores() || errors;
+                errors = validaFechaYDevuelveSiHayErrores() || errors;
+                return errors;
+            }
+
+            function validaCamposObligatoriosYDevuelveSiHayErrores() {
+                let errors = false;
+                let camposObligatorios = ['nombre', 'apellidos', 'telefono', 'fecha', 'comensales'];
+                camposObligatorios.forEach((campo) => {
+                    if ($(`#${campo}`).val() == '') {
+                        errors = true;
+                        muestraError(campo, `El campo ${campo} es obligatorio.`);
+                    }
+                });
+                return errors;
+            }
+
+            function validaTelefonoYDevuelveSiHayErrores() {
+                let errors = false;
+                let telefono = $('#telefono').val();
+
+                if (telefono) {
+                    if (isNaN(telefono)) {
+                        if (telefono.substr(0, 1) === '+') {
+                            if (telefono.length !== 12) {
+                                errors = true;
+                                muestraError('telefono', 'El número indicado no es correcto. Ejemplo de número internacional válido: +34666555444.');
+                            } else if (isNaN(telefono.substr(1, telefono.length - 1))) {
+                                errors = true;
+                                muestraError('telefono', 'El número indicado no es correcto. Ejemplo de número internacional válido: +34666555444.');
+                            }
+                        } else {
+                            errors = true;
+                            muestraError('telefono', 'El número indicado no es correcto. Ejemplo de números válidos: +34666555444 , 666555444.');
+                        }
+                    } else {
+                        if (telefono.length !== 9) {
+                            errors = true;
+                            muestraError('telefono', 'El número indicado no es correcto. Ejemplo de números válidos: +34666555444 , 666555444.');
+                        }
+                    }
+                }
+                return errors;
+            }
+
+            function validaFechaYDevuelveSiHayErrores() {
+                let errors = false;
+                if ($fecha.val()) {
+                    let [fecha, hora] = $fecha.val().split(' ');
+                    let fechaParts = fecha.split('/');
+                    let horaParts = hora.split(':');
+
+                    if (fueraDelHorarioDeApertura(+horaParts[0])) {
+                        errors = true;
+                        muestraError('fecha', 'El horario de apertura es de 12 a 16 y de 19 a 23.');
+                    }
+
+                    let valor = new Date(+fechaParts[2], fechaParts[1] - 1, +fechaParts[0], +horaParts[0], +horaParts[1]);
+
+                    let tomorrow = new Date();
+                    tomorrow.setDate(tomorrow.getDate() + 1);
+
+                    if (valor < tomorrow) {
+                        errors = true;
+                        muestraError('fecha', 'La fecha debe ser, al menos, 24 horas superior a la fecha actual.');
+                    }
+                }
+                return errors;
+            }
+
+            function fueraDelHorarioDeApertura(hora) {
+                return hora < 12 || (hora >= 16 && hora < 19) || hora >= 23;
+            }
+
+            function validaComensalesYDevuelveSiHayErrores() {
+                let errors = false;
+                let $comensales = $('#comensales');
+                if (isNaN($comensales.val())) {
+                    errors = true;
+                    muestraError('comensales', 'Debe indicar un número.');
+                } else if ($comensales.val() > 10) {
+                    errors = true;
+                    muestraError('comensales', 'El número de comensales no puede ser mayor a 10.');
+                }
+                return errors;
+            }
+
+            function marcaCamposSinErroresComoValidos(campos) {
+                campos.forEach(campo => {
+                    let $groupCampo = $('#group-' + campo);
+                    if (!$groupCampo.hasClass('has-error')) {
+                        $groupCampo.addClass('has-success');
+                    }
+                });
+            }
+
+            function muestraError(campo, mensaje) {
+                if ($('#error-' + campo).html() !== '') {
+                    $('#error-' + campo).append('<br />');
+                }
+                $('#error-' + campo).append(mensaje).show('slow');
+                $('#group-' + campo).addClass('has-error');
+            }
+
+            function muestraModalResultado(data) {
+                if (data.ok) {
+                    Swal.fire({
+                        title: "¡Guardado!",
+                        text: "Se ha guardado la reserva.",
+                        icon: "success",
+                    }).then(() => {
+                        window.location.assign("/")
+                    });
+                } else {
+                    console.log(data.errors);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'No se ha podido guardar su reserva',
+                        footer: 'Corrija los errores detallados y vuelva a intentarlo.'
+                    });
+                    data.errors.forEach((error) => {
+                        muestraError(error.campo, error.mensaje)
+                    });
+                }
+            }
+
+        });
+    </script>
+{% endblock %}

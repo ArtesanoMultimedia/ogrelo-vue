@@ -1,0 +1,10 @@
+{% extends 'reservas/create.html' %}
+
+{% block title %}Restaurante O Grelo - Editar reserva{% endblock %}
+{% block page_title %}Editar reserva{% endblock %}
+
+{% block content %}
+
+    {% include 'reservas/_form.html' with {'form_action': '/ajax/reservas/' ~ id, 'form_method': 'PUT'} %}
+
+{% endblock %}

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="{% block description %}{% endblock %}">
+    <meta name="author" content="Carlos Rodríguez López">
+
+    <title>{% block title %}{% endblock %}</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet"
+          type="text/css"/>
+    {#    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet"
+              integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">#}
+
+    <!-- CSS del Datepicker -->
+    <link href="https://unpkg.com/gijgo@1.9.13/css/gijgo.min.css" rel="stylesheet" type="text/css"/>
+
+    <!-- MetisMenu CSS -->
+    <link href="/vendor/BlackrockDigital/startbootstrap-sb-admin-2/vendor/metisMenu/metisMenu.min.css" rel="stylesheet"
+          type="text/css">
+
+    <!-- DataTables CSS -->
+    <link href="/vendor/BlackrockDigital/startbootstrap-sb-admin-2/vendor/datatables-plugins/dataTables.bootstrap.css"
+          rel="stylesheet" type="text/css">
+
+    <!-- DataTables Responsive CSS -->
+    <link href="/vendor/BlackrockDigital/startbootstrap-sb-admin-2/vendor/datatables-responsive/dataTables.responsive.css"
+          rel="stylesheet" type="text/css">
+
+    <!-- Font Awesome -->
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"
+          integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" type="text/css">
+
+    <!-- SB Admin -->
+    <link href="/vendor/BlackrockDigital/startbootstrap-sb-admin-2/dist/css/sb-admin-2.css" rel="stylesheet">
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- CSS Propio -->
+    {% block stylesheets %}{% endblock %}
+
+    <link rel="icon" type="image/x-icon" href="{{ helper.asset('favicon.ico') }}"/>
+</head>
+
+<body>
+
+<div id="wrapper">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+
+        {% include 'common/partials/navbar-header.html' %}
+        <!-- /.navbar-header -->
+
+        <ul class="nav navbar-top-links navbar-right">
+            {% block navbar_top_links %}{% endblock %}
+        </ul>
+        <!-- /.navbar-top-links -->
+
+        {% include 'common/partials/sidebar.html' %}
+        <!-- /.navbar-static-side -->
+    </nav>
+
+    <!-- Page Content -->
+    <div id="page-wrapper">
+        <div class="container-fluid">
+            {% block body %}
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1 class="page-header">{% block page_title %}{% endblock %}</h1>
+                    </div>
+                    <!-- /.col-lg-12 -->
+                </div>
+                <!-- /.row -->
+                {% block content %}{% endblock %}
+            {% endblock %}
+        </div>
+        <!-- /.container-fluid -->
+    </div>
+    <!-- /#page-wrapper -->
+
+</div>
+<!-- /#wrapper -->
+
+<!-- jQuery -->
+<script src="/vendor/BlackrockDigital/startbootstrap-sb-admin-2/vendor/jquery/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/vendor/BlackrockDigital/startbootstrap-sb-admin-2/vendor/bootstrap/js/bootstrap.min.js"></script>
+
+<!--  Datepicker  -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gijgo/1.9.13/combined/js/gijgo.min.js"
+        integrity="sha256-YZhUu69bCn9uTqQyKwwQ3GyRypS7eaxp/wmVS282sDI=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gijgo/1.9.13/combined/js/messages/messages.es-es.min.js"
+        integrity="sha256-aYHjwzEPrf61GO3O1gmS3VQd/X5a5bAFvhn/9YB3IYo=" crossorigin="anonymous"></script>
+
+<!--  SweetAlerts  -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@9" crossorigin="anonymous"></script>
+
+<!-- Metis Menu Plugin JavaScript -->
+<script src="/vendor/BlackrockDigital/startbootstrap-sb-admin-2/vendor/metisMenu/metisMenu.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/vendor/BlackrockDigital/startbootstrap-sb-admin-2/js/sb-admin-2.js"></script>
+
+{% block javascripts %}{% endblock %}
+</body>
+
+</html>

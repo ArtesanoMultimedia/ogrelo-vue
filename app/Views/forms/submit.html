@@ -1,0 +1,16 @@
+<input type="submit" value="{{ value }}" class="{{ class }}"/>
+
+<script>
+    $(function () {
+        $('#{{ form }}').on('submit', function (e) {
+            e.preventDefault();
+            const $form = $(this);
+            const url = $form.attr('action');
+            $.post(url, $form.serialize(), function (data) {
+                {% block callback %}
+                    console.log(data);
+                {% endblock %}
+            });
+        });
+    });
+</script>

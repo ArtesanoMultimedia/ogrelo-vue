@@ -1,0 +1,20 @@
+<div class="form-group">
+    <label for="{{ name }}">{{ label }}</label>
+    <input type="{{ type }}" id="{{ name }}" class="{{ class }}" name="{{ name }}"
+            {% if value %}
+                value="{{ value|e }}"
+            {% endif %}
+            {% if placeholder %}
+                placeholder="{{ placeholder }}"
+            {% endif %}
+            {% if maxlength %}
+                maxlength="{{ maxlength }}"
+            {% endif %}
+            {% if required %}
+                required
+            {% endif %}
+            {% if readonly %}
+                readonly
+            {% endif %}
+    />
+</div>
