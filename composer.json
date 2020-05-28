@@ -13,19 +13,19 @@
     {
       "type": "package",
       "package": {
-        "name": "BlackrockDigital/startbootstrap-sb-admin-2",
-        "version": "3.3.7+1",
+        "name": "blackrockdigital/startbootstrap-sb-admin-2",
+        "version": "4.0.7",
         "source": {
           "url": "https://github.com/BlackrockDigital/startbootstrap-sb-admin-2.git",
           "type": "git",
-          "reference": "v3.3.7+1"
+          "reference": "v4.0.7"
         }
       }
     }
   ],
   "require": {
     "twig/twig": "^3.0",
-    "BlackrockDigital/startbootstrap-sb-admin-2": "^3.0",
+    "blackrockdigital/startbootstrap-sb-admin-2": "^4.0",
     "ext-mysqli": "*",
     "ext-json": "*",
     "ext-pdo": "*"

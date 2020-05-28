@@ -19,7 +19,18 @@ class ReservasController extends ControladorBase
         );
     }
 
-    public function count24horas() {
+    public function ajaxIndex24horas()
+    {
+        $entidad = new $this->model();
+        $fecha_hasta = new DateTime('+24 hours', new DateTimeZone('Europe/Madrid'));
+        $registros = $entidad->index(null, $fecha_hasta->format('Y-m-d H:i:s'));
+
+        header('Content-type: Application-json');
+        echo json_encode($registros);
+    }
+
+    public function count24horas()
+    {
         $fecha_hasta = new DateTime('+24 hours', new DateTimeZone('Europe/Madrid'));
         $entidad = new $this->model();
         $num = $entidad->index(null, $fecha_hasta->format('Y-m-d H:i:s'), true);

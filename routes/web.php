@@ -14,9 +14,9 @@ $router->get('/', function() {
     to(implode('#', [DEFAULT_CONTROLLER, DEFAULT_ACTION]));
 });
 
-$assets->get('/js/([\w]+)*.js', function() {
-    to('vue#jsasset');
-});
+//$assets->get('/js/([\w]+)*.js', function() {
+//    to('vue#jsasset');
+//});
 
 // Sobreescribimos la ruta principal para redirigir al index
 
@@ -26,8 +26,8 @@ $router->get('/reservas', function() {
 
 // Rutas especídifcas que no se crean automáticamente por ResourceRoute.
 
-$router->get('/reservas/proximas24horas', function() {
-    to('reservas#index24horas');
+$ajax->get('/reservas/proximas24horas', function() {
+    to('reservas#ajaxIndex24horas');
 });
 
 $ajax->get('/reservas/proximas24horas/count', function() {

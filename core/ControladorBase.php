@@ -37,6 +37,14 @@ class ControladorBase
         ));
     }
 
+    public function ajaxIndex()
+    {
+        $registros = $this->getRegistros();
+
+        header('Content-type: application-json');
+        echo json_encode($registros);
+    }
+
     public function create()
     {
         //Cargamos la vista create
@@ -59,6 +67,17 @@ class ControladorBase
         $this->view($this->slug . '.show', array(
             substr($this->slug, 0, -1) => $registro
         ));
+    }
+
+    public function ajaxShow($id)
+    {
+        /** @var EntidadBase $entidad */
+        $entidad = new $this->model();
+        $registro = $entidad->getById($id);
+
+        //Cargamos la vista index y le pasamos valores
+        header('Content-type: application-json');
+        echo json_encode($registro);
     }
 
     public function edit($id)

@@ -4,15 +4,15 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "aa6258dce181581acc316eb161341687",
+    "content-hash": "62321ccc62ee73fbb1856dee8ddd9a0f",
     "packages": [
         {
             "name": "BlackrockDigital/startbootstrap-sb-admin-2",
-            "version": "3.3.7+1",
+            "version": "4.0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/BlackrockDigital/startbootstrap-sb-admin-2.git",
-                "reference": "v3.3.7+1"
+                "reference": "v4.0.7"
             },
             "type": "library"
         },
@@ -653,12 +653,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "866a6b51c8a50ecb7aebb13e713d093c354c82da"
+                "reference": "0d5d9ceaa7927910fc7d9d40ca5bce0e7f7b36bb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/866a6b51c8a50ecb7aebb13e713d093c354c82da",
-                "reference": "866a6b51c8a50ecb7aebb13e713d093c354c82da",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/0d5d9ceaa7927910fc7d9d40ca5bce0e7f7b36bb",
+                "reference": "0d5d9ceaa7927910fc7d9d40ca5bce0e7f7b36bb",
                 "shasum": ""
             },
             "require": {
@@ -709,7 +709,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2020-05-24T06:05:51+00:00"
+            "time": "2020-05-26T04:55:11+00:00"
         },
         {
             "name": "phpunit/php-file-iterator",

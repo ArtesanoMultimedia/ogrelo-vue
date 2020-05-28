@@ -55,7 +55,6 @@ class ResourceRoute
         });
 
         $ajax->get("/$slug", function() use ($controller) {
-            echo 'ajax.index';die;
             to("$controller#ajaxIndex");
         });
 
@@ -65,7 +64,6 @@ class ResourceRoute
         });
 
         $ajax->get("/$slug/([\w]+)*", function($id) use ($controller) {
-            echo 'ajax.show';die;
             to("$controller#ajaxShow", $id);
         });
 
