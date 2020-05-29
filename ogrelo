@@ -10,6 +10,7 @@ $application = new Application();
 $application->add(new MakeTestCommand());
 $application->add(new MakeCommandCommand());
 $application->add(new MakeTestCommand());
+$application->add(new MakeExceptionCommand());
 
 try {
     $application->run();

@@ -2,287 +2,290 @@
 
 namespace OGrelo\core;
 
+use DomainException;
 use Exception;
+use InvalidArgumentException;
 
 class QueryBuilder
 {
-    public $query_count = 0;
-    protected $connection;
-    protected $table;
-    protected $query;
-    protected $sql;
-    protected $fields = [];
-    protected $keys = [];
-    protected $values = [];
-    protected $where = '';
-    protected $limit;
-    protected $show_errors = TRUE;
-    protected $query_closed = TRUE;
-    protected $mode;
-    protected $errors = [];
-    protected $templateSelect;
-    protected $templateInsert;
-    protected $templateReplace;
-    protected $templateUpdate;
-    protected $templateDelete;
-    protected $templateTruncate;
+    private $connection;
+    private $mode;
+    private $select;
+    private $from;
+    private $join;
+    private $where;
+    private $order;
+    private $limit;
+    private $debug = false;
 
+
+    /**
+     * QueryBuilder constructor.
+     */
     public function __construct($args)
     {
+
         $this->connection = $args['connection'];
+
     }
 
-    public function table($table) {
-        $this->table = $table;
+    public function run() {
+        $query = $this->getQuery();
+        return $this->query($query);
+    }
+
+    public function get($query = null, $fetch_type = FetchTypeEnum::FETCH_ASSOC)
+    {
+        if (!$query) {
+            $query = $this->getQuery();
+        }
+        if ($this->debug) {
+            return $query;
+        }
+        $result = $this->limit(1)->query($query);
+        return $result->fetch_array($fetch_type);
+    }
+
+    /**
+     * @param $query
+     * @return array|bool|string
+     */
+    public function getAll($query = null)
+    {
+        if (!$query) {
+            $query = $this->getQuery();
+        }
+        if ($this->debug) {
+            return $query;
+        }
+        $result = $this->query($query);
+        if (!$result) {
+            return [];
+        }
+        $return = array();
+        while ($row = $result->fetch_assoc()) {
+            $return[] = $row;
+        }
+        return $return;
+    }
+
+    public function debug()
+    {
+        $this->debug = true;
         return $this;
     }
 
-    public function insert($keys, $values) {
-        $this->mode = 'INSERT';
-        $this->keys = $keys;
-        $this->values = $values;
-        $this->setQuery();
-        $this->query($this->sql, $values);
-        return $this->lastInsertId();
+    public function query($query)
+    {
+        if ($this->debug) {
+            return $query;
+        }
+        return $this->connection->query($query);
     }
 
-    public function update($keys, $values) {
-        $this->mode = 'UPDATE';
-        $this->keys = $keys;
-        $this->values = $values;
-        $this->setQuery();
-        $this->query($this->sql, $values);
-        return $this->affectedRows();
+    public function num_rows($stmt)
+    {
+        return $stmt->num_rows;
     }
 
-    public function select() {
-        $this->mode = 'SELECT';
-        return $this;
+    public function error()
+    {
+        return $this->connection->error;
     }
 
-    public function delete($where) {
-        $this->mode = 'DELETE';
-        $this->where = $where;
-        return $this;
+    public function getMode()
+    {
+        return $this->mode;
     }
 
-    public function do() {
-        $this->setQuery();
-        $this->query($this->sql);
-        return $this;
+    public function getSelect()
+    {
+        return $this->select;
     }
 
-    public function get() {
-        $this->setQuery();
-        return $this->query($this->sql)->fetchArray();
+    public function getFrom()
+    {
+        return $this->from;
     }
 
-    public function getAll() {
-        $this->setQuery();
-        return $this->query($this->sql)->fetchAll();
+    public function getJoin()
+    {
+        return $this->join;
     }
 
-    private function setQuery() {
+    public function getWhere()
+    {
+        return $this->where;
+    }
+
+    public function getOrder()
+    {
+        return $this->order;
+    }
+
+    public function getQuery()
+    {
         switch ($this->mode) {
-            case 'INSERT':
-                $interrogantes = array();
-                for ($i = 0; $i < count($this->keys); $i++) {
-                    $interrogantes[] = '?';
-                }
-                $this->sql = "INSERT INTO $this->table ( " . implode(', ', $this->keys) . " ) VALUES ( " . implode(', ' , $interrogantes) . " )";
+            case 'SELECT':
+                return $this->select . $this->from . $this->join . $this->where . $this->order . $this->limit;
                 break;
             case 'DELETE':
-                if ($this->where) {
-                    $this->sql = "DELETE FROM $this->table WHERE $this->where";
-                } else {
-                    throw new Exception('Debe indicarse alguna condición WHERE al hacer un DELETE');
-                }
-                break;
-            case 'UPDATE':
-                if ($this->where) {
-                    $arrayCampos = [];
-                    foreach($this->keys as $key) {
-                        $arrayCampos[] = "$key = ?";
-                    }
-                    $campos = implode(', ', $arrayCampos);
-                    $this->sql = "update $this->table SET $campos WHERE $this->where";
-                } else {
-                    throw new Exception('Debe indicarse alguna condición WHERE al hacer un DELETE');
-                }
-                break;
-            case 'SELECT':
+                return 'DELETE ' . $this->from . $this->where;
             default:
-                if (!$this->fields) {
-                    $this->fields = '*';
-                }
-                if (is_array($this->fields)) {
-                    $this->sql = "SELECT " . implode(',', $this->fields) . " FROM $this->table";
-                } else {
-                    $this->sql = "SELECT $this->fields FROM $this->table";
-                }
-                if ($this->where) {
-                    $this->sql .= " WHERE $this->where";
-                }
-                break;
+                return false;
         }
     }
 
-    public function field($field, $alias = null) {
-        if (is_array($field) && !$alias) {
-            $this->fields($field);
-        } elseif ($alias) {
-            $this->fields[] = "$field \"$alias\"";
-        } else {
-            $this->fields[] = $field;
+    public function select($fields = null)
+    {
+        $this->mode = 'SELECT';
+        if (!$fields) {
+            $fields = '*';
         }
-    }
-
-    public function fields($fields) {
-        if ($this->hasStringKeys($fields)) {
-            foreach ($fields as $field => $alias) {
-                $this->fields[] = "$field \"$alias\"";
-            }
-        } else {
-            foreach ($fields as $field) {
-                $this->fields[] = $field;
-            }
-        }
-    }
-
-    public function where($where) {
-        if ($this->where) {
-            $this->where .= " AND $where ";
-        } else {
-            $this->where = $where;
-        }
-        return $this;
-    }
-
-    public function andWhere($where) {
-        $this->where .= " AND $where ";
-        return $this;
-    }
-
-    public function orWhere($where) {
-        $this->where .= " OR $where ";
-        return $this;
-    }
-
-    private function hasStringKeys(array $array) {
-        return count(array_filter(array_keys($array), 'is_string')) > 0;
-    }
-
-    public function query($query) {
-        if (!$this->query_closed) {
-            $this->query->close();
-        }
-        if ($this->query = $this->connection->prepare($query)) {
-            if (func_num_args() > 1) {
-                $x = func_get_args();
-                $args = array_slice($x, 1);
-                $types = '';
-                $args_ref = array();
-                foreach ($args as $k => &$arg) {
-                    if (is_array($args[$k])) {
-                        foreach ($args[$k] as $j => &$a) {
-                            $types .= $this->_gettype($args[$k][$j]);
-                            $args_ref[] = &$a;
-                        }
-                    } else {
-                        $types .= $this->_gettype($args[$k]);
-                        $args_ref[] = &$arg;
-                    }
-                }
-                array_unshift($args_ref, $types);
-                call_user_func_array(array($this->query, 'bind_param'), $args_ref);
-            }
-            $this->query->execute();
-            if ($this->query->errno) {
-                $this->error('No se ha podido procesar la query (revise los parámetros) - ' . $this->query->error);
-            }
-            $this->query_closed = FALSE;
-            $this->query_count++;
-        } else {
-            $this->error('No se ha podido preparar la sentencia MySQL (revise la sintaxis) - ' . $this->connection->error);
-        }
-        return $this;
-    }
-
-    public function fetchAll($callback = null) {
-        $params = array();
-        $row = array();
-        $meta = $this->query->result_metadata();
-        while ($field = $meta->fetch_field()) {
-            $params[] = &$row[$field->name];
-        }
-        call_user_func_array(array($this->query, 'bind_result'), $params);
-        $result = array();
-        while ($this->query->fetch()) {
-            $r = array();
-            foreach ($row as $key => $val) {
-                $r[$key] = $val;
-            }
-            if ($callback != null && is_callable($callback)) {
-                $value = call_user_func($callback, $r);
-                if ($value == 'break') break;
+        if (!is_array($fields)) {
+            if (!$this->select) {
+                $this->select = 'SELECT ' . $fields . ' ';
             } else {
-                $result[] = $r;
+                $this->select .= ', ' . $fields . ' ';
+            }
+        } else {
+            $this->select = 'SELECT ';
+            foreach ($fields as $key => $value) {
+                $this->select .= "$key AS $value , ";
+            }
+            $this->select = rtrim($this->select, ', ') . ' ';
+        }
+        return $this;
+    }
+
+    public function delete($where)
+    {
+        $this->mode = 'DELETE';
+        $this->where($where);
+        return $this;
+    }
+
+    public function table($table)
+    {
+        return $this->from($table);
+    }
+
+    public function from($from)
+    {
+        $this->from = 'FROM ' . $from . ' ';
+        return $this;
+    }
+
+    public function ljoin($tabla, $campos = null)
+    {
+        $campos = $this->setCampos($tabla, $campos);
+        $this->join .= 'LEFT JOIN ' . $tabla . ' ON ' . $campos . ' ';
+        return $this;
+    }
+
+    public function rjoin($tabla, $campos = null)
+    {
+        $campos = $this->setCampos($tabla, $campos);
+        $this->join .= 'RIGHT JOIN ' . $tabla . ' ON ' . $campos . ' ';
+        return $this;
+    }
+
+    public function join($tabla, $campos = null)
+    {
+        $campos = $this->setCampos($tabla, $campos);
+        $this->join .= 'INNER JOIN ' . $tabla . ' ON ' . $campos . ' ';
+        return $this;
+    }
+
+    public function where($where, $valor = null, $nexo = 'AND')
+    {
+        if (!$where) {
+            throw new InvalidArgumentException('No se han pasado condiciones a la función where');
+        }
+        $this->where .= !$this->where ? 'WHERE ' : $nexo . ' ';
+        if (!$valor) {
+            $this->where .= $where . ' ';
+        } else {
+            $this->where .= $where . ' = ' . $valor . ' ';
+        }
+        return $this;
+    }
+
+    public function andWhere($where, $valor = null)
+    {
+        $this->where($where, $valor, 'AND');
+        return $this;
+    }
+
+    public function orWhere($where, $valor = null)
+    {
+        $this->where($where, $valor, 'OR');
+        return $this;
+    }
+
+    public function order($order)
+    {
+        $this->order = "ORDER BY $order ";
+        return $this;
+    }
+
+    public function limit($limit)
+    {
+        $this->limit = "LIMIT $limit ";
+        return $this;
+    }
+
+    public function setCampos($tabla, $campos)
+    {
+        if (!$campos) {
+            $from = substr($this->getFrom(), 5, -1);
+            if ($from) {
+                $campos = $tabla . '.id_' . $tabla . ' = ' . $from . '.id_' . $tabla;
+            } else {
+                $message = 'No se ha podido construir la cadena. Indique primero el campo form o especifique los campos del join.';
+                throw new DomainException($message);
             }
         }
-        $this->query->close();
-        $this->query_closed = TRUE;
-        return $result;
-    }
-
-    public function fetchArray() {
-        $params = array();
-        $row = array();
-        $meta = $this->query->result_metadata();
-        while ($field = $meta->fetch_field()) {
-            $params[] = &$row[$field->name];
-        }
-        call_user_func_array(array($this->query, 'bind_result'), $params);
-        $result = array();
-        while ($this->query->fetch()) {
-            foreach ($row as $key => $val) {
-                $result[$key] = $val;
+        $vinculadas = false;
+        if (!is_array($campos)) {
+            $nexos = [' OR ', ','];
+            foreach ($nexos as $nexo) {
+                if (strpos($campos, $nexo) > 0) {
+                    $vinculadas = explode($nexo, $campos);
+                    break;
+                }
             }
         }
-        $this->query->close();
-        $this->query_closed = TRUE;
-        return $result;
-    }
 
-    public function close() {
-        return $this->connection->close();
-    }
+        if (is_array($campos)) {
+            $vinculadas = $campos;
+        }
 
-    public function numRows() {
-        $this->query->store_result();
-        return $this->query->num_rows;
-    }
+        if ($vinculadas) {
+            $campos = '( ';
+            foreach ($vinculadas as $vinculada) {
+                $campos .= $tabla . '.id_' . $tabla . ' = ' . trim($vinculada) . '.id_' . $tabla . ' OR ';
+            }
+            $campos = rtrim($campos, 'OR ');
+            $campos .= ' )';
+        }
 
-    public function affectedRows() {
-        return $this->query->affected_rows;
-    }
+        if (strpos($campos, '=') === false) {
+            $campos = $tabla . '.id_' . $tabla . ' = ' . $campos . '.id_' . $tabla;
+        }
 
-    public function lastInsertID() {
-        return $this->query->insert_id;
+        return $campos;
     }
-
-    protected function error($error) {
-        $this->errors[] = ['error' => $error, 'query' => $this->sql];
-    }
-
-    public function getErrors() {
-        return $this->errors;
-    }
-
-    private function _gettype($var) {
-        if (is_string($var)) return 's';
-        if (is_float($var)) return 'd';
-        if (is_int($var)) return 'i';
-        return 'b';
-    }
-
 }
+
+class FetchTypeEnum
+{
+    const FETCH_NUMERIC = MYSQLI_NUM;
+    const FETCH_ASSOC = MYSQLI_ASSOC;
+    const FETCH_BOTH = MYSQLI_BOTH;
+}
+
+class QueryPrepareException extends Exception
+{
+}
+

@@ -10,7 +10,7 @@ Vue.component('topbar', {
             <!-- Topbar Search -->
             <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
                 <div class="input-group">
-                    <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
+                    <input @keyup="search" v-model="text" type="text" class="form-control bg-light border-0 small" placeholder="Buscar cliente..." aria-label="Buscar" aria-describedby="basic-addon2">
                     <div class="input-group-append">
                         <button class="btn btn-primary" type="button">
                             <i class="fas fa-search fa-sm"></i>
@@ -47,7 +47,7 @@ Vue.component('topbar', {
                   <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i class="fas fa-bell fa-fw"></i>
                     <!-- Counter - Alerts -->
-                    <span class="badge badge-danger badge-counter">{{count24h}}+</span>
+                    <span class="badge badge-danger badge-counter">{{count24h}}</span>
                   </a>
                   <!-- Dropdown - Alerts -->
                   <div @click="view24h" class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="alertsDropdown">
@@ -81,24 +81,20 @@ Vue.component('topbar', {
     `,
     data() {
         return {
-            // count24h: null
+            text: '',
         }
     },
     methods: {
         view24h: function() {
             this.$store.commit('view24h');
+        },
+        search: function() {
+            this.$store.commit('updateSearch', this.text)
         }
     },
     computed: {
-        count24h() {
-            return this.$store.state.count24h;
-        },
-        viendo24h() {
-            return this.$store.state.viendo24h;
-        },
-        reservas24h() {
-            return this.$store.state.reservas24h;
-        }
+        ...Vuex.mapGetters(['count24h']),
+        ...Vuex.mapState(['viendo24h', 'reservas24h']),
     },
 
 });

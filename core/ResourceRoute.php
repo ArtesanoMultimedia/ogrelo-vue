@@ -2,6 +2,7 @@
 
 namespace OGrelo\core;
 
+use OGrelo\core\Exceptions\PrefixException;
 use OGrelo\core\Exceptions\RouteNotFoundException;
 
 class ResourceRoute
@@ -11,77 +12,73 @@ class ResourceRoute
 
     /**
      * @param $slug
-     * @param null $controller
+     * @param string|null $controller
+     * @param string|null $prefix
      * @throws RouteNotFoundException
      */
-    static public function add($slug, $controller = null) {
+    static public function add($slug, $controller = null, $prefix = null)
+    {
+
+        $founded = false;
 
         if (!$controller) {
             $controller = ucfirst($slug);
         }
 
-        $router = new Router('');
-        $ajax = new Router('ajax/');
-
-        $router->get("/$slug", function() use ($controller) {
-            echo 'index';die;
-            to("$controller#index");
-        });
-
-        $router->get("/$slug/create", function() use ($controller) {
-            to("$controller#create");
-        });
-
-        $router->post("/$slug", function() use ($controller) {
-            to("$controller#store");
-        });
-
-        $router->get("/$slug/([\w]+)*", function($id) use ($controller) {
-            to("$controller#show", $id);
-        });
-
-        $router->get("/$slug/([\w]+)*/edit", function($id) use ($controller) {
-            to("$controller#edit", $id);
-        });
-
-        $router->put("/$slug/([\w]+)*", function($id) use ($controller) {
-            echo 'update';die;
-            to("$controller#update", $id);
-        });
-
-        $router->delete("/$slug/([\w]+)*", function($id) use ($controller) {
-            echo 'destroy'; die;
-            to("$controller#destroy", $id);
-        });
-
-        $ajax->get("/$slug", function() use ($controller) {
-            to("$controller#ajaxIndex");
-        });
-
-        $ajax->post("/$slug", function() use ($controller) {
-            echo 'ajax.store';die;
-            to("$controller#ajaxStore");
-        });
-
-        $ajax->get("/$slug/([\w]+)*", function($id) use ($controller) {
-            to("$controller#ajaxShow", $id);
-        });
-
-        $ajax->put("/$slug/([\w]+)*", function($id) use ($controller) {
-            to("$controller#ajaxUpdate", $id);
-        });
-
-        $ajax->delete("/$slug/([\w]+)*", function($id) use ($controller) {
-            to("$controller#ajaxDestroy", $id);
-        });
-
-
-        try {
-            $router->route();
-        } catch (RouteNotFoundException $e) {
-            $ajax->route();
+        if ($prefix !== null) {
+            $prefixes = ['', 'ajax'];
         }
 
+        if (is_string($prefix)) {
+            $prefixes = [$prefix];
+        } else if (is_array($prefix)) {
+            $prefixes = $prefix;
+        } else {
+            throw new PrefixException();
+        }
+
+
+        foreach ($prefixes as $prefix) {
+
+            $router = new Router($prefix);
+
+            $router->get("/$slug", function () use ($controller, $prefix) {
+                to("$controller#{$prefix}index");
+            });
+
+            $router->get("/$slug/create", function () use ($controller, $prefix) {
+                to("$controller#{$prefix}create");
+            });
+
+            $router->post("/$slug", function () use ($controller, $prefix) {
+                to("$controller#{$prefix}store");
+            });
+
+            $router->get("/$slug/([\w]+)*", function ($id) use ($controller, $prefix) {
+                to("$controller#{$prefix}show", $id);
+            });
+
+            $router->get("/$slug/([\w]+)*/edit", function ($id) use ($controller, $prefix) {
+                to("$controller#{$prefix}edit", $id);
+            });
+
+            $router->put("/$slug/([\w]+)*", function ($id) use ($controller, $prefix) {
+                to("$controller#{$prefix}update", $id);
+            });
+
+            $router->delete("/$slug/([\w]+)*", function ($id) use ($controller, $prefix) {
+                to("$controller#{$prefix}destroy", $id);
+            });
+
+            try {
+                $router->route();
+                $founded = true;
+            } catch (RouteNotFoundException $e) {}
+        }
+
+        if (!$founded) {
+            throw new RouteNotFoundException('Ruta no encontrada');
+        }
 
     }
     

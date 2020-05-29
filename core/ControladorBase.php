@@ -37,13 +37,24 @@ class ControladorBase
         ));
     }
 
-    public function ajaxIndex()
+    public function ajaxindex()
     {
         $registros = $this->getRegistros();
 
         header('Content-type: application-json');
         echo json_encode($registros);
     }
+
+
+
+
+//    public function ajaxindex() {
+//        $entidad = new $this->model();
+//        $registros = $entidad->index();
+//        header('Content-type: Application-json');
+//        echo json_encode($registros);
+//    }
+
 
     public function create()
     {
@@ -69,7 +80,7 @@ class ControladorBase
         ));
     }
 
-    public function ajaxShow($id)
+    public function ajaxshow($id)
     {
         /** @var EntidadBase $entidad */
         $entidad = new $this->model();
@@ -107,7 +118,7 @@ class ControladorBase
         }
     }
 
-    public function ajaxUpdate()
+    public function ajaxupdate()
     {
         $this->store();
     }
@@ -125,7 +136,7 @@ class ControladorBase
         $this->redirect($this->slug, 'index');
     }
 
-    public function ajaxDestroy($id)
+    public function ajaxdestroy($id)
     {
         $entidad = new $this->model();
         $result = $entidad->deleteById($id);

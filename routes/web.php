@@ -5,8 +5,7 @@ use OGrelo\core\Router;
 use OGrelo\core\Exceptions\RouteNotFoundException;
 
 $router = new Router('');
-$assets = new Router('assets/');
-$ajax = new Router('ajax/');
+$ajax = new Router('ajax');
 
 // Establecemos la ruta principal, las constantes se definen en config/Constants.php
 
@@ -31,7 +30,7 @@ $ajax->get('/reservas/proximas24horas', function() {
 });
 
 $ajax->get('/reservas/proximas24horas/count', function() {
-    to('reservas#count24horas');
+    to('reservas#ajaxCount24horas');
 });
 
 // Comparamos la url con las rutas registradas hasta este punto
@@ -39,15 +38,13 @@ try {
     $router->route();
 } catch (RouteNotFoundException $e) {
     try {
-        $ajax->route();
+        $ajax->route('ajax');
     } catch (RouteNotFoundException $e) {
         try {
             // Llegamos a este punto si la ruta solicitada no concuerda con las rutas especificadas más arriba
 
             // Aquí colocamos las rutas CRUD de los modelos:
-
-            ResourceRoute::add('reservas');
-
+            ResourceRoute::add('reservas', null, 'ajax');
 
         } catch (RouteNotFoundException $e) {
             // TODO: Implementar una vista para los errores y utilizarla para mostrar el error 404.

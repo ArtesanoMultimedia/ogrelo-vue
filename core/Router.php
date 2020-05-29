@@ -15,16 +15,20 @@ class Router
     /** @var Route[] Rutas registradas */
     public $routes = array();
 
+    /** @var string */
+    private $prefix;
+
     /**
      * Constructor
      *
      * @param string $base_path la ruta base
      */
-    public function __construct($base_path = '')
+    public function __construct($prefix = '')
     {
-        $this->base_path = $base_path;
+        $this->prefix = $prefix;
+        $this->base_path = ($prefix !== '' ? $prefix . '/' : '');
         $path = urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
-        $path = substr($path, strlen($base_path));
+        $path = substr($path, strlen($this->base_path));
         $this->path = $path;
     }
 
@@ -111,13 +115,19 @@ class Router
     /**
      * Test all routes until any of them matches
      *
+     * @param null $prefix
+     * @return mixed
      * @throws RouteNotFoundException if the route doesn't match with any of the registered routes
      */
-    public function route()
+    public function route($prefix = null)
     {
-        $posAjax = strpos($this->path, '/ajax/');
-        if ($posAjax) {
-            $uri = substr($this->path, $posAjax +5);
+        if ($prefix) {
+            $posPrefix = strpos($this->path, '/' . $prefix . '/');
+            if ($posPrefix) {
+                $uri = substr($this->path, $posPrefix + strlen($prefix) + 1);
+            } else {
+                $uri = $this->path;
+            }
         } else {
             $uri = $this->path;
         }

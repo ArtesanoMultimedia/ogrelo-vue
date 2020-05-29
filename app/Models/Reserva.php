@@ -23,28 +23,37 @@ class Reserva extends EntidadBase
 
     // Para algunas funciones podemos utilizar las funciones genéricas de EntidadBase
     // Otras las tenemos que reescribir de acuerdo al Dominio con el que trabajamos.
-    // En este caso, sobreescribimos la función index(), para que por defecto muestre sólo las
+    // En este caso, sobreescribimos la función getAll(), para que muestre sólo las reservas futuras.
 
-    public function index($fecha_desde = null, $fecha_hasta = null, $length = false)
+    public function getAll($fecha_desde = null, $fecha_hasta = null)
     {
-        $fecha_desde = $fecha_desde ?: date('Y-m-d H:i:s');
-        $fechas = [$fecha_desde];
-        if ($length) {
-            $query = "SELECT COUNT(*) as num_reservas FROM $this->tableName WHERE fecha >= ?";
-        } else {
-            $query = "SELECT * FROM $this->tableName WHERE fecha >= ?";
+        if (!$fecha_desde) {
+            $fecha_desde = (new DateTime())->setTimezone(new DateTimeZone('Europe/Madrid'))->format('Y-m-d H:i');
         }
+
+        $registros = $this->table->select('*')->where("fecha >= '$fecha_desde'");
+
         if ($fecha_hasta) {
-            $query .= ' AND fecha <= ?';
-            $fechas[] = $fecha_hasta;
+            $registros->andWhere("fecha <= '$fecha_hasta'");
         }
-        $query .= ' ORDER BY fecha';
-        if ($length) {
-            $result = $this->table->query($query, $fechas)->fetchArray();
-        } else {
-            $result = $this->table->query($query, $fechas)->fetchAll();
-        }
-        return $result;
+
+        $registros->order('fecha');
+
+        return $registros->getAll();
     }
+
+//    public function count24horas()
+//    {
+//        $fecha_desde = (new DateTime())->format('Y-m-d H:i');
+//        $fecha_hasta = (new DateTime('+24 hours'))->format('Y-m-d H:i');
+//        $res = $this->table->select('COUNT(*) num')
+//                           ->where("fecha >= '$fecha_desde'")
+//                           ->andWhere("fecha <= '$fecha_hasta'")
+//                           ->get();
+//        if (!$res) {
+//            return 0;
+//        }
+//        return $res['num'];
+//    }
 
 }

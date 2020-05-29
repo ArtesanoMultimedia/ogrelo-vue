@@ -46,7 +46,10 @@ class EntidadBase implements JsonSerializable
 
     public function getAll()
     {
-        return $this->table->select()->getAll();
+        $this->setCamposPublicos();
+        $campos = implode(', ', $this->camposPublicos);
+        $registros = $this->table->select($campos);
+        return $registros->getAll();
     }
 
     public function getById($id)
@@ -77,11 +80,11 @@ class EntidadBase implements JsonSerializable
 
     public function deleteBy($column, $value)
     {
-        $query = $this->table->delete("$column=$value")->do();
-        if ($query->getErrors()) {
-            return ['deleted' => false, 'errors' => $query->getErrors()];
+        $result = $this->table->delete("$column=$value")->run();
+        if ($result) {
+            return ['deleted' => true];
         }
-        return ['deleted' => true, 'errors' => null];
+        return ['deleted' => false];
     }
 
     public function save()
@@ -189,11 +192,15 @@ class EntidadBase implements JsonSerializable
         return $this;
     }
 
-    public function jsonSerialize()
-    {
+    private function setCamposPublicos() {
         if (!$this->camposPublicos) {
             $this->camposPublicos = array_keys($this->campos);
         }
+    }
+
+    public function jsonSerialize()
+    {
+        $this->setCamposPublicos();
 
         $export = new stdClass();
         $export->id = $this->id;

@@ -13,6 +13,8 @@ Vue.component('page-content', {
             
                 <reservas-table></reservas-table>     
             
+                            
+            
             </div>
             
         </div>

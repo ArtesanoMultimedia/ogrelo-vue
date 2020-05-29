@@ -12,7 +12,7 @@ class MakeCommandCommand extends Command
     protected $commandHelp = 'Este comando sirve para crear un nuevo comando con el nombre dado';
 
     protected $Comando = 'comando';
-    protected $ComandoDescripcion = 'Comando que se desea generar, por ejemeplo: make:class';
+    protected $ComandoDescripcion = 'Comando que se desea generar, por ejemplo: make:class';
 
     protected function configure()
     {

@@ -13,12 +13,12 @@ load([
         'ControladorBase',
         'DB',
         'EntidadBase',
+        'Exceptions',
         'HelperVistas',
         'QueryBuilder',
         'Route',
         'Router',
         'ResourceRoute',
-        'Exceptions/RouteNotFoundException',
     ],
 ]);
 
