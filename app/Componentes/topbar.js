@@ -10,7 +10,7 @@ Vue.component('topbar', {
             <!-- Topbar Search -->
             <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
                 <div class="input-group">
-                    <input @keyup="search" v-model="text" type="text" class="form-control bg-light border-0 small" placeholder="Buscar cliente..." aria-label="Buscar" aria-describedby="basic-addon2">
+                    <input @keyup="search" v-model="text" class="form-control bg-light border-0 small" placeholder="Buscar cliente..." aria-label="Buscar" aria-describedby="basic-addon2">
                     <div class="input-group-append">
                         <button class="btn btn-primary" type="button">
                             <i class="fas fa-search fa-sm"></i>
@@ -50,7 +50,7 @@ Vue.component('topbar', {
                     <span class="badge badge-danger badge-counter">{{count24h}}</span>
                   </a>
                   <!-- Dropdown - Alerts -->
-                  <div @click="view24h" class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="alertsDropdown">
+                  <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="alertsDropdown">
                     <h6 class="dropdown-header">
                       Reservas en las próximas 24 horas
                     </h6>
@@ -65,9 +65,20 @@ Vue.component('topbar', {
                         <span class="font-weight-bold">{{reserva.nombre}}</span>
                       </div>
                     </a>
-                    <a class="dropdown-item text-center small text-gray-500" href="#" @click="view24h">Mostrar reservas de las próximas 24h</a>
+                    <a class="dropdown-item text-center small text-gray-500" href="#" @click="ver24h">Mostrar reservas de las próximas 24h</a>
                   </div>
                 </li>
+                
+                <li v-if="viendo24h" class="nav-item"  @click="verTodas">
+                  <a class="nav-link" href="#" role="button" >
+                    <span class="mr-2 text-gray-600 small">Ver todas</span>
+                    <i class="fas fa-redo"></i>
+                  </a>
+                </li>
+                
+<!--                <li v-if="viendo24h" class="nav-item mx-1" @click="verTodas">-->
+<!--                    <a href="#"><i class="fas fa-redo text-white"></i>Ver todas las reservas</a>-->
+<!--                </li>-->
                             
 <!--                <li><a href="/reservas/proximas24horas" id="boton24h" class="hidden">-->
 <!--                        <span class="d-sm-inline">-->
@@ -85,11 +96,17 @@ Vue.component('topbar', {
         }
     },
     methods: {
-        view24h: function() {
+        ver24h: function() {
             this.$store.commit('view24h');
+            this.$store.commit('setPageTitle', 'Reservas Próximas 24h');
+        },
+        verTodas: function() {
+            this.$store.dispatch('getReservas');
+            this.$store.commit('setViendo24h', false);
+            this.$store.commit('setPageTitle', 'Reservas');
         },
         search: function() {
-            this.$store.commit('updateSearch', this.text)
+            this.$store.commit('updateSearch', this.text);
         }
     },
     computed: {

@@ -123,6 +123,11 @@ class ControladorBase
         $this->store();
     }
 
+    public function ajaxstore()
+    {
+        $this->store();
+    }
+
     private function saveFromRequest() {
         /** @var EntidadBase $entidad */
         $entidad = new $this->model();

@@ -10,12 +10,15 @@ class QueryBuilder
 {
     private $connection;
     private $mode;
+    private $table;
     private $select;
     private $from;
     private $join;
     private $where;
     private $order;
     private $limit;
+    private $keys;
+    private $values;
     private $debug = false;
 
 
@@ -32,6 +35,21 @@ class QueryBuilder
     public function run() {
         $query = $this->getQuery();
         return $this->query($query);
+    }
+
+    public function clear() {
+        $this->select = null;
+        $this->join = null;
+        $this->where = null;
+        $this->order = null;
+        $this->limit = null;
+        $this->keys = null;
+        $this->values = null;
+        $this->debug = false;
+    }
+
+    public function lastInsertedId() {
+        return $this->connection->insert_id;
     }
 
     public function get($query = null, $fetch_type = FetchTypeEnum::FETCH_ASSOC)
@@ -125,19 +143,39 @@ class QueryBuilder
 
     public function getQuery()
     {
+        global $log;
         switch ($this->mode) {
+            case 'INSERT':
+                $query = 'INSERT INTO ' . $this->table . ' ( ' . implode(', ', $this->keys) . ' ) VALUES ( ' . implode(', ', $this->values) . ' ) ';
+                break;
             case 'SELECT':
-                return $this->select . $this->from . $this->join . $this->where . $this->order . $this->limit;
+                $query = $this->select . $this->from . $this->join . $this->where . $this->order . $this->limit;
+                break;
+            case 'UPDATE':
+                $campos = [];
+                foreach($this->keys as $index => $key) {
+                    $campos[] = $key . ' = ' . $this->values[$index];
+                }
+                $query = 'UPDATE ' . $this->table . ' SET ' . implode(', ', $campos) . ' ' . $this->where;
                 break;
             case 'DELETE':
-                return 'DELETE ' . $this->from . $this->where;
+                $query = 'DELETE ' . $this->from . $this->where;
+                break;
             default:
-                return false;
+                $query = '';
+        }
+
+        $log->info($query);
+        if ($query) {
+            return $query;
+        } else {
+            return false;
         }
     }
 
     public function select($fields = null)
     {
+        $this->clear();
         $this->mode = 'SELECT';
         if (!$fields) {
             $fields = '*';
@@ -158,8 +196,26 @@ class QueryBuilder
         return $this;
     }
 
+    public function update($keys, $values) {
+        $this->clear();
+        $this->mode = 'UPDATE';
+        $this->keys = $keys;
+        $this->values = $values;
+        return $this;
+    }
+
+    public function insert($keys, $values) {
+        $this->clear();
+        $this->mode = 'INSERT';
+        $this->keys = $keys;
+        $this->values = $values;
+        return $this;
+    }
+
+
     public function delete($where)
     {
+        $this->clear();
         $this->mode = 'DELETE';
         $this->where($where);
         return $this;
@@ -167,7 +223,9 @@ class QueryBuilder
 
     public function table($table)
     {
+        $this->table = $table;
         return $this->from($table);
+
     }
 
     public function from($from)

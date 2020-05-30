@@ -5,7 +5,7 @@ Vue.component('page-content', {
 
             <!-- Page Heading -->
             <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                <h1 class="h3 mb-0 text-gray-800">Reservas</h1>
+                <h1 class="h3 mb-0 text-gray-800">{{pageTitle}}</h1>
             </div>
     
             <!-- Content Row -->
@@ -13,16 +13,14 @@ Vue.component('page-content', {
             
                 <reservas-table></reservas-table>     
             
-                            
+                
             
             </div>
             
         </div>
         <!-- /.container-fluid -->
     `,
-    data(){
-        return {
-            saludo: 'Hola desde Vue'
-        }
+    computed: {
+        ...Vuex.mapState(['pageTitle'])
     }
 });

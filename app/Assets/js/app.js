@@ -14,6 +14,8 @@ const store = new Vuex.Store({
         reservas24h: {},
         viendo24h: false,
         search: '',
+        pageTitle: 'Reservas',
+        errors: [],
     },
     getters: {
         count24h: state => state.reservas24h.length,
@@ -40,6 +42,26 @@ const store = new Vuex.Store({
         },
         updateSearch(state, value) {
             state.search = value;
+        },
+        view24h(state) {
+            state.viendo24h = true;
+            state.reservas = state.reservas24h;
+        },
+        setViendo24h(state, value) {
+            state.viendo24h = value;
+        },
+        setPageTitle(state, value) {
+            state.pageTitle = value;
+        },
+        emptyReserva(state) {
+            let setNull = (obj) => Object.keys(obj).forEach(k => obj[k] = null);
+            setNull(state.reserva);
+        },
+        emptyErrors(state) {
+            state.errors = [];
+        },
+        addError(state, error) {
+            state.errors.push(error);
         }
     },
     actions: {
@@ -59,16 +81,24 @@ const store = new Vuex.Store({
             const data = await res.json();
             commit('setReserva', data);
         },
-        storeReserva: async function({commit}, id) {
-            const res = await fetch('/ajax/reservas/' + id, {
-                method: 'PUT',
-                body: reserva
-            });
-            this.getReservas({commit});
+        storeReserva: async function({commit, state, dispatch}, id = '') {
+            id = (id === null ? '' : id);
+            let url = '/ajax/reservas/' + id;
+            let type = 'POST';
+            if (id) {
+                type = 'PUT';
+            }
+            let data = state.reserva;
+
+            $.ajax({url, type, data})
+                .done(function() {
+                    dispatch('getReservas');
+                });
         }
     }
 });
 
+// Fix para que se muestre la pestaña de VUE en DevTools
 Vue.config.devtools = true;
 
 const app = new Vue({
@@ -80,9 +110,9 @@ const app = new Vue({
     methods:{
         comprueba24h: function () {
             store.dispatch('getReservas24h');
-            setInterval(function () {
-                store.dispatch('getReservas24h')
-            }, 6000);
+            // setInterval(function () {
+            //     store.dispatch('getReservas24h')
+            // }, 6000);
         }
     },
     mounted () {
@@ -90,4 +120,5 @@ const app = new Vue({
     }
 });
 
+// Fix para que se muestre la pestaña de VUE en DevTools
 window.__VUE_DEVTOOLS_GLOBAL_HOOK__.Vue = app.constructor;

@@ -54,6 +54,8 @@ class EntidadBase implements JsonSerializable
 
     public function getById($id)
     {
+        global $log;
+        $log->info('getById, $id=' . $id);
         $array = $this->table->select()->where("id = $id")->get();
         $this->id = $array['id'];
         foreach ($this->campos as $campo => $tipo) {
@@ -106,23 +108,26 @@ class EntidadBase implements JsonSerializable
             $keys[] = $campo;
             if ($tipo === 'datetime') {
                 if (is_object($this->$campo)) {
-                    $values[] = ($this->$campo)->format('Y-m-d H:i');
+                    $values[] = "'".($this->$campo)->format('Y-m-d H:i')."'";
                 } else {
                     if (strpos($this->$campo, '/')) {
                         $date = DateTime::createFromFormat('d/m/Y H:i', $this->$campo);
                     } else {
                         $date = new DateTime($this->$campo);
                     }
-                    $values[] = $date->format('Y-m-d H:i');
+                    $values[] = "'".$date->format('Y-m-d H:i')."'";
                 }
+            } else if ($tipo === 'string') {
+                $values[] = "'".$this->$campo."'";
             } else {
                 $values[] = $this->$campo;
             }
         }
-        $id = $this->table->insert($keys, $values);
+        $this->table->insert($keys, $values)->run();
+        $id = $this->table->lastInsertedId();
 
-        $this->getById($id);
         if ($id) {
+            $this->id = $id;
             return true;
         } else {
             return false;
@@ -138,20 +143,23 @@ class EntidadBase implements JsonSerializable
             $keys[] = $campo;
             if ($tipo === 'datetime') {
                 if (is_object($this->$campo)) {
-                    $values[] = ($this->$campo)->format('Y-m-d H:i');
+                    $values[] = "'".($this->$campo)->format('Y-m-d H:i')."'";
                 } else {
                     if (strpos($this->$campo, '/')) {
                         $date = DateTime::createFromFormat('d/m/Y H:i', $this->$campo);
                     } else {
                         $date = new DateTime($this->$campo);
                     }
-                    $values[] = $date->format('Y-m-d H:i');
+                    $values[] = "'".$date->format('Y-m-d H:i')."'";
                 }
+            } else if ($tipo === 'string') {
+                $values[] = "'".$this->$campo."'";
             } else {
                 $values[] = $this->$campo;
             }
         }
-        $rows = $this->table->where("id = $id")->update($keys, $values);
+        $rows = $this->table->update($keys, $values)->where("id = $id")->run();
+
         $this->getById($id);
         if ($rows > 0) {
             return true;
@@ -178,9 +186,17 @@ class EntidadBase implements JsonSerializable
         if($_SERVER['REQUEST_METHOD'] == 'PUT') {
             parse_str(file_get_contents("php://input"),$_REQUEST);
         }
-        if (array_key_exists('id', $_REQUEST)) {
-            $this->id = $_REQUEST['id'];
+        if (is_string($_REQUEST)) {
+            $_REQUEST = json_decode($_REQUEST);
         }
+
+        if (array_key_exists('id', $_REQUEST) && $_REQUEST['id'] > 0) {
+            $this->id = $_REQUEST['id'];
+            global $log;
+            $log->error('id = ' . $this->id);
+            $this->getById($this->id);
+        }
+
         if (!$this->camposRellenables) {
             $this->camposRellenables = array_keys($this->campos);
         }
