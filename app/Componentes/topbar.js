@@ -112,29 +112,31 @@ Vue.component('topbar', {
             this.$store.commit('openDetalleModal', 'Editar reserva');
         },
         filtrarPorFecha: function() {
-            let fechaDesde;
-            let fechaHasta;
-
-            try {
-                let desdeParts = this.fechaDesde.split("/");
-                // Los meses empiezan en 0, por eso necesitamos desdeParts[1] - 1
-                fechaDesde = new Date(+desdeParts[2], desdeParts[1] - 1, +desdeParts[0]);
-            } catch {
-                // TODO Mostrar al usuario el error
-                fechaDesde = '';
-            }
-
-            try {
-                let hastaParts = this.fechaHasta.split("/");
-                fechaHasta = new Date(+hastaParts[2], hastaParts[1] - 1, +hastaParts[0]);
-            } catch {
-                // TODO Mostrar al usuario el error
-                fechaHasta = '';
-            }
-
-
-            this.$store.commit('setFechaDesde', fechaDesde);
-            this.$store.commit('setFechaHasta', fechaHasta);
+            this.$store.commit('setFechaDesde', this.fechaDesde);
+            this.$store.commit('setFechaHasta', this.fechaHasta);
+            // let fechaDesde;
+            // let fechaHasta;
+            //
+            // try {
+            //     let desdeParts = this.fechaDesde.split("/");
+            //     // Los meses empiezan en 0, por eso necesitamos desdeParts[1] - 1
+            //     fechaDesde = new Date(+desdeParts[2], desdeParts[1] - 1, +desdeParts[0]);
+            // } catch {
+            //     // TODO Mostrar al usuario el error
+            //     fechaDesde = '';
+            // }
+            //
+            // try {
+            //     let hastaParts = this.fechaHasta.split("/");
+            //     fechaHasta = new Date(+hastaParts[2], hastaParts[1] - 1, +hastaParts[0]);
+            // } catch {
+            //     // TODO Mostrar al usuario el error
+            //     fechaHasta = '';
+            // }
+            //
+            //
+            // this.$store.commit('setFechaDesde', fechaDesde);
+            // this.$store.commit('setFechaHasta', fechaHasta);
         }
     },
     computed: {
