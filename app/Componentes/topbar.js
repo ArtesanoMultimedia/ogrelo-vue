@@ -59,7 +59,7 @@ Vue.component('topbar', {
                   </a>
                   <!-- Dropdown - Alerts -->
                   <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="alertsDropdown">
-                    <h6 class="dropdown-header">
+                    <h6 class="dropdown-header pointer" title="Mostrar reservas de las próximas 24h" @click="ver24h">
                       Reservas en las próximas 24 horas
                     </h6>
                     <a v-for="reserva in reservas24h" @click="detalle(reserva.id)" class="dropdown-item d-flex align-items-center" href="#">
@@ -73,7 +73,7 @@ Vue.component('topbar', {
                         <span class="font-weight-bold">{{reserva.nombre}}</span>
                       </div>
                     </a>
-                    <a class="dropdown-item text-center small text-gray-500" href="#" @click="ver24h">Mostrar reservas de las próximas 24h</a>
+                    <a class="dropdown-item text-center text-gray-700 btnVer24h" href="#" @click="ver24h">Mostrar reservas de las próximas 24h</a>
                   </div>
                 </li>
                 

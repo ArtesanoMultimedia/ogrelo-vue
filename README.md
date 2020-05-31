@@ -1,8 +1,14 @@
-# Práctica: Cómo hace una web con jQuery para poder gestionar un restaurante
+# Práctica: Cómo hacer una web con Vue.js para poder gestionar un restaurante
 
-Como se amplió el tiempo de entrega, he rehecho la práctica para hacerla más útil y reutilizable. He creado un pequeño framework PHP, al que le faltan todavía muchas cosas, pero que puede ser la base para futuros proyectos.
+Para esta práctica, he utilizado el mismo backend que para la anterior, aunque he hecho unas cuantas modificaciones; la más destacable es que he creado un nuevo QueryBuilder, lo que me ha hecho modificar las consultas por completo.
+
+En cuanto a Vue, he dividido la aplicación en algunos componentes y he utilizado Vuex para controlar el estado de todas las variables compartidas de la aplicación.
 
 ## Instalación
+
+He utilizado Vue importado desde CDN, por lo que no hace falta instalar node ni ningún paquete de npm para el FrontEnd.
+
+Para el Backend:
 
 - Instalar dependencias:
 
