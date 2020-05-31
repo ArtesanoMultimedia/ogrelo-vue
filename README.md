@@ -48,31 +48,17 @@ Contiene la definición de la aplicación Vue en `app.js` así como la store de 
 
 Los controladores del Backend que extienden a core/ControladorBase. Las funciones de comportamiento genérico, están definidas en la clase padre y en la clase hija sólo se sobreescriben las funciones que necesiten un comportamiento diferente al genérico o se escriben nuevas funciones específicas del dominio.
 
+Aquí he añadido un nuevo controlador, que es el que gestiona la vista. Recibe la petición y redirige al punto de entrada de la aplicación Vue.
+
 #### `/app/Modelos`
 
 Los modelos extienden a core/EntidadBase. Al igual que con los controladores, la lógica genérica está implementada en la clase padre.
 
 #### `/app/Views`
 
-Contiene los archivos de las vistas, que utilizan [Twig](https://twig.symfony.com/).
-
-También se está utilizando la plantilla [SB Admin 2](https://startbootstrap.com/themes/sb-admin-2).
-
-Las vistas específicas del dominio, se crean dentro de su propia carpeta (`Views/reservas`).
-
-En la carpeta `Views/common` van los archivos comunes, propios de la plantilla.
-
-Aquí se encuentra actualmente el javascript objeto de evaluación, concretamente en los archivos:
-
-* `/reservas/create.html`
-* `/reservas/index.html`
-
+Contiene el archivo `app.html`, con el layout del html de la aplicación. Desde aquí se carga todo lo demás.
 
 >**Faltaría:**
->
->- [x] Implementar los botones pertenecientes al dominio de `Views/common/partials/navbar-top-links.html` dentro de `Views/reservas`. Tal vez a través de un layout específico que extienda a `Views/common/layout`.
->- [ ] Implementar en `Views/reservas/_form.html` los métodos `helper.input()` y `helper.submit()`, que utilizan las plantillas de `Views/forms`.
->- [ ] Migrar a la [última versión de SB Admin](https://github.com/BlackrockDigital/startbootstrap-sb-admin-2/releases). (Seguí un tutorial que implementaba la versión 3 y cuando me di cuenta de que existía la 4, ya había avanzado demasiado).
 
 ### /config
 
@@ -87,6 +73,8 @@ Aquí van los archivos de configuración propios del proyecto.
 ### /consoleApp
 
 La idea es crear una aplicación de línea de comandos para agilizar futuros desarrollos, pero por ahora sólo hay unos archivos de prueba para comprobar que la aplicación funciona.
+
+Con respecto a la práctica anterior he añadido un comando que me permitía crear Excepciones personalizadas, que podían ser útiles en el desarrollo del backend.
 
 ### /core
 
@@ -124,24 +112,17 @@ Los archivos que más atención merecen son:
     >
     >- [ ] Traducir los usos de `$this->db->query` para utilizar el QueryBuilder: `$this->table->`.
 
-- `ResourceRoute.php`: Es el archivo que genera automáticamente todas las rutas genéricas relativas al CRUD de un dominio, tal y como se detallan en la siguiente tabla, donde {slug} es el nombre del recurso (reservas, usuarios, posts,...):
+- `ResourceRoute.php`: Es el archivo que genera automáticamente todas las rutas genéricas relativas al CRUD de un dominio, tal y como se detallan en la siguiente tabla, donde {prefix} se detalla al instanciar el Router (por ejemplo 'ajax') y {slug} es el nombre del recurso (reservas, usuarios, posts,...):
     
     | Método | Ruta              | Acción                    | Descripción                                                                                   |
     |--------|-------------------|---------------------------|-----------------------------------------------------------------------------------------------|
-    | GET    | /{slug}           | Controller->index()       | Muestra la vista con la lista de registros                                                    |
-    | GET    | /{slug}/create    | Controller->create()      | Muestra el formulario para crear un nuevo registro                                            |
-    | POST   | /{slug}           | Controller->store()       | Crea un nuevo registro y muestra una vista de confirmación o, (por defecto) redirige al index |
-    | GET    | /{slug}/{id}      | Controller->show()        | Muestra una vista individual de un registro                                                   |
-    | GET    | /{slug}/{id}/edit | Controller->edit()        | Muestra el formulario para editar un registro                                                 |
-    | POST   | /{slug}/{id}      | Controller->update()      | Actualiza un registro y muestra una vista de confirmación                                     |
-    | DELETE | /{slug}/{id}      | Controller->destroy()     | Elimina un registro y redirige al index                                                       |
-    | GET    | /ajax/{slug}      | Controller->ajaxIndex()   | Devuelve un json con la lista de registros                                                    |
-    | POST   | /ajax/{slug}      | Controller->ajaxStore()   | Crea un nuevo registro y devuelve un json con el resultado                                    |
-    | GET    | /ajax/{slug}/{id} | Controller->ajaxShow()    | Devuelve un json con un registro individual                                                   |
-    | POST   | /ajax/{slug}/{id} | Controller->ajaxUpdate()  | Actualiza un registro y devuelve un json con el resultado                                     |
-    | DELETE | /ajax/{slug}/{id} | Controller->ajaxDestroy() | Elimina un registro y devuelve un json con el resultado                                       |
-
-    >Los métodos que todavía no han sido implementados o no han sido necesarios, simplemente devuelven un texto para saber que la ruta existe.
+    | GET    | /{prefix}/{slug}           | Controller->{prefix}index()       | Muestra la vista con la lista de registros                                                    |
+    | GET    | /{prefix}/{slug}/create    | Controller->{prefix}create()      | Muestra el formulario para crear un nuevo registro                                            |
+    | POST   | /{prefix}/{slug}           | Controller->{prefix}store()       | Crea un nuevo registro y muestra una vista de confirmación o, (por defecto) redirige al index |
+    | GET    | /{prefix}/{slug}/{id}      | Controller->{prefix}show()        | Muestra una vista individual de un registro                                                   |
+    | GET    | /{prefix}/{slug}/{id}/edit | Controller->{prefix}edit()        | Muestra el formulario para editar un registro                                                 |
+    | POST   | /{prefix}/{slug}/{id}      | Controller->{prefix}update()      | Actualiza un registro y muestra una vista de confirmación                                     |
+    | DELETE | /{prefix}/{slug}/{id}      | Controller->{prefix}destroy()     | Elimina un registro y redirige al index                                                       |
 
 - `Router.php` y `Route.php`: Conforman la lógica del enrutador que procesa las rutas de todas las peticiones.
 

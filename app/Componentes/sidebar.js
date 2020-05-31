@@ -21,6 +21,13 @@ Vue.component('sidebar', {
                     <span>Gestión de reservas</span></a>
             </li>
             
+            <li class="nav-item">
+                <a class="nav-link" href="https://github.com/ArtesanoMultimedia/ogrelo-vue" target="_blank">
+                    <i class="fab fa-fw fa-github"></i>
+                    <span>Ver en Github</span></a>
+            </li>
+            
+            
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
             
