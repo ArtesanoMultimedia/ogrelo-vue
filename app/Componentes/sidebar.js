@@ -1,7 +1,8 @@
 Vue.component('sidebar', {
     template: `
         <!-- Sidebar -->
-        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion"
+            :class="toggledSidebar" id="accordionSidebar">
             <!-- Sidebar - Brand -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/">
                 <div class="sidebar-brand-icon rotate-n-15">
@@ -25,11 +26,17 @@ Vue.component('sidebar', {
             
             <!-- Sidebar Toggler (Sidebar) -->
             <div class="text-center d-none d-md-inline">
-                <button class="rounded-circle border-0" id="sidebarToggle"></button>
+                <button @click="toggleSidebar" class="rounded-circle border-0" id="sidebarToggle"></button>
             </div>
         </ul>
         <!-- End of Sidebar -->
-    `
+    `,
+    methods: {
+        ...Vuex.mapMutations(['toggleSidebar']),
+    },
+    computed: {
+        ...Vuex.mapState(['toggledSidebar']),
+    }
 });
 
 

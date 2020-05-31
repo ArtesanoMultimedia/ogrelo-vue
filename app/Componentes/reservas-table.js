@@ -10,14 +10,30 @@ Vue.component('reservas-table', {
             <table v-if="!loading" width="100%" class="table table-striped table-bordered table-hover" id="reservas">
                 <thead>
                     <tr>
-                        <th>Nombre</th>
-                        <th>Apellidos</th>
-                        <th>Fecha</th>
-                        <th>Comensales</th>
+                        <th @click="ordenaNombre" class="pointer">
+                            <i v-if="orderColumn != 'nombre'" class="fas fa-sort"></i>
+                            <i v-else-if="orderAsc" class="fas fa-sort-down"></i>
+                            <i v-else="orderAsc" class="fas fa-sort-up"></i>
+                             Nombre</th>
+                        <th @click="ordenaApellidos" class="pointer">
+                            <i v-if="orderColumn != 'apellidos'" class="fas fa-sort"></i>
+                            <i v-else-if="orderAsc" class="fas fa-sort-down"></i>
+                            <i v-else="orderAsc" class="fas fa-sort-up"></i>
+                             Apellidos</th>
+                        <th @click="ordenaFecha" class="pointer">
+                            <i v-if="orderColumn != 'fecha'" class="fas fa-sort"></i>
+                            <i v-else-if="orderAsc" class="fas fa-sort-down"></i>
+                            <i v-else="orderAsc" class="fas fa-sort-up"></i>
+                             Fecha</th>
+                        <th @click="ordenaComensales" class="pointer">
+                            <i v-if="orderColumn != 'comensales'" class="fas fa-sort"></i>
+                            <i v-else-if="orderAsc" class="fas fa-sort-down"></i>
+                            <i v-else="orderAsc" class="fas fa-sort-up"></i>
+                             Comensales</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
-                <tbody v-if="reservasFiltradas !== []">
+                <tbody v-if="reservasFiltradas.length > 0">
                     <tr v-for="reserva in reservasFiltradas" :key="reserva.id" class="odd gradeX">
                         <td>{{ reserva.nombre }}</td>
                         <td>{{ reserva.apellidos }}</td>
@@ -118,35 +134,29 @@ Vue.component('reservas-table', {
                                 </button>
                               </div>
                               <form id="form">
-                                <div id="group-nombre" class="form-group">
+                                <div id="group-nombre" class="form-group has-danger">
                                     <label for="nombre" class="control-label">Nombre</label>
-                                    <input v-model="reserva.nombre" class="form-control">
-                                    <div id="error-nombre" class="alert alert-danger mt-2 collapse" role="alert"></div>
+                                    <input id="nombre" name="nombre" v-model="reserva.nombre" class="form-control" :class="validClass.nombre" >
                                 </div>
-                                <div id="group-apellidos" class="form-group">
+                                <div id="group-apellidos" class="form-group has-success">
                                     <label for="apellidos" class="control-label">Apellidos</label>
-                                    <input v-model="reserva.apellidos" class="form-control" >
-                                    <div id="error-apellidos" class="alert alert-danger mt-2 collapse" role="alert"></div>
+                                    <input id="apellidos" name="apellidos" v-model="reserva.apellidos" class="form-control" :class="validClass.apellidos" >
                                 </div>
                                 <div id="group-telefono" class="form-group">
                                     <label for="telefono" class="control-label">Teléfono</label>
-                                    <input v-model="reserva.telefono" class="form-control" minlength="6" maxlength="12">
-                                    <div id="error-telefono" class="alert alert-danger mt-2 collapse" role="alert"></div>
+                                    <input id="telefono" name="telefono" v-model="reserva.telefono" class="form-control" :class="validClass.telefono" minlength="6" maxlength="12">
                                 </div>
                                 <div id="group-fecha" class="form-group">
                                     <label for="fecha" class="control-label">Fecha</label>
-                                    <input v-model="reserva.fecha" class="form-control" autocomplete="off" placeholder="dd/mm/yyyy hh:mm" >
-                                    <div id="error-fecha" class="alert alert-danger mt-2 collapse" role="alert"></div>
+                                    <input id="fecha" name="fecha" v-model="reserva.fecha" class="form-control" :class="validClass.fecha" autocomplete="off" placeholder="dd/mm/yyyy hh:mm" >
                                 </div>
                                 <div id="group-comensales" class="form-group">
                                     <label for="comensales" class="control-label">Comensales</label>
-                                    <input v-model="reserva.comensales" class="form-control" >
-                                    <div id="error-comensales" class="alert alert-danger mt-2 collapse" role="alert"></div>
+                                    <input id="comensales" name="comensales" v-model="reserva.comensales" class="form-control" :class="validClass.comensales" >
                                 </div>
                                 <div id="group-comentarios" class="form-group">
                                     <label for="comentarios" class="control-label">Comentarios</label>
-                                    <input v-model="reserva.comentarios" class="form-control" >
-                                    <div id="error-comentarios" class="alert alert-danger mt-2 collapse" role="alert"></div>
+                                    <input id="comentarios" name="comentarios" v-model="reserva.comentarios" class="form-control" :class="validClass.comentarios" >
                                 </div>
                             </form>
  
@@ -169,14 +179,21 @@ Vue.component('reservas-table', {
             showDetalleModal: false,
             showFormModal: false,
             formTitle: '',
+            validClass: {
+                nombre: '',
+                apellidos: '',
+                telefono: '',
+                fecha: '',
+                comensales: '',
+                comentarios: '',
+            },
         }
     },
     mounted() {
         this.$store.dispatch('getReservas')
     },
     methods: {
-        // ...Vuex.mapActions(['getReservas']),
-        ...Vuex.mapMutations(['emptyErrors', 'addError']),
+        ...Vuex.mapMutations(['emptyErrors', 'sortReservas', 'setOrderColumn', 'setOrderAsc']),
         detalle: function (id) {
             this.$store.dispatch('getReserva', id);
             this.showDetalleModal = true;
@@ -184,11 +201,15 @@ Vue.component('reservas-table', {
         editar: function (id) {
             this.$store.dispatch('getReserva', id);
             this.formTitle = 'Editar reserva';
+            this.emptyValidClasses();
+            this.emptyErrors();
             this.showFormModal = true;
         },
         nueva: function() {
             this.$store.commit('emptyReserva');
             this.formTitle = 'Nueva reserva';
+            this.emptyValidClasses();
+            this.emptyErrors();
             this.showFormModal = true;
         },
         store: async function(id) {
@@ -201,11 +222,19 @@ Vue.component('reservas-table', {
         },
         validate: async function() {
             this.emptyErrors();
+            this.emptyValidClasses();
             this.validaCamposObligatorios();
             this.validaTelefono();
             this.validaComensales();
             this.validaFecha();
             return this.errors.length === 0;
+        },
+        emptyValidClasses: function() {
+            Object.keys(this.validClass).forEach(item => this.validClass[item] = '');
+        },
+        addError: function(error) {
+            this.validClass[error.campo] = 'is-invalid';
+            this.$store.commit('addError', error);
         },
         validaCamposObligatorios: function() {
             let camposObligatorios = ['nombre', 'apellidos', 'telefono', 'fecha', 'comensales'];
@@ -303,10 +332,46 @@ Vue.component('reservas-table', {
                 }
             })
 
-        }
+        },
+        ordenaNombre: function() {
+            if (this.orderColumn === 'nombre') {
+                this.setOrderAsc(!this.orderAsc);
+            } else {
+                this.setOrderColumn('nombre');
+                this.setOrderAsc(true);
+            }
+            this.sortReservas();
+        },
+        ordenaApellidos: function() {
+            if (this.orderColumn === 'apellidos') {
+                this.setOrderAsc(!this.orderAsc);
+            } else {
+                this.setOrderColumn('apellidos');
+                this.setOrderAsc(true);
+            }
+            this.sortReservas();
+        },
+        ordenaFecha: function() {
+            if (this.orderColumn === 'fecha') {
+                this.setOrderAsc(!this.orderAsc);
+            } else {
+                this.setOrderColumn('fecha');
+                this.setOrderAsc(true);
+            }
+            this.sortReservas();
+        },
+        ordenaComensales: function() {
+            if (this.orderColumn === 'comensales') {
+                this.setOrderAsc(!this.orderAsc);
+            } else {
+                this.setOrderColumn('comensales');
+                this.setOrderAsc(true);
+            }
+            this.sortReservas();
+        },
     },
     computed: {
         ...Vuex.mapGetters(['reservasFiltradas']),
-        ...Vuex.mapState(['reserva', 'loading', 'reservas', 'errors'])
+        ...Vuex.mapState(['reserva', 'loading', 'reservas', 'errors', 'orderColumn', 'orderAsc']),
     }
 });

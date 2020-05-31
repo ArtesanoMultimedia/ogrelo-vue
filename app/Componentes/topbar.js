@@ -3,7 +3,7 @@ Vue.component('topbar', {
         <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
 
             <!-- Sidebar Toggle (Topbar) -->
-            <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+            <button @click="toggleSidebar" id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
                 <i class="fa fa-bars"></i>
             </button>
             
@@ -52,6 +52,7 @@ Vue.component('topbar', {
                 <!-- Nav Item - Alerts -->
                 <li v-if="count24h > 0 && !viendo24h" title="Hay reservas en las próximas 24 horas" class="nav-item dropdown no-arrow mx-1">
                   <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="mr-2 text-gray-600 small">Ver 24h</span>
                     <i class="fas fa-bell fa-fw"></i>
                     <!-- Counter - Alerts -->
                     <span class="badge badge-danger badge-counter">{{count24h}}</span>
@@ -82,18 +83,6 @@ Vue.component('topbar', {
                     <i class="fas fa-redo"></i>
                   </a>
                 </li>
-                
-<!--                <li v-if="viendo24h" class="nav-item mx-1" @click="verTodas">-->
-<!--                    <a href="#"><i class="fas fa-redo text-white"></i>Ver todas las reservas</a>-->
-<!--                </li>-->
-                            
-<!--                <li><a href="/reservas/proximas24horas" id="boton24h" class="hidden">-->
-<!--                        <span class="d-sm-inline">-->
-<!--                            <i class="fa fa-bell fa-fw"></i> Hay reservas en las </span>Próximas 24 horas</a></li>-->
-<!--                <li><a href="/" id="botonTodas" class="">-->
-<!--                        <i class="fa fa-calendar-times fa-fw"></i> Ver todas las reservas</a></li>-->
-<!--                <li><a href="/reservas/create" id="botonNueva" class="">-->
-<!--                        <i class="fa fa-plus"></i> Nueva reserva</a></li>-->
             </ul>
         </nav>
     `,
@@ -105,6 +94,7 @@ Vue.component('topbar', {
         }
     },
     methods: {
+        ...Vuex.mapMutations(['toggleSidebar']),
         ver24h: function() {
             this.$store.commit('view24h');
             this.$store.commit('setPageTitle', 'Reservas Próximas 24h');

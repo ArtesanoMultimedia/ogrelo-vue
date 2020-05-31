@@ -18,6 +18,10 @@ const store = new Vuex.Store({
         search: '',
         fechaDesde: '',
         fechaHasta: '',
+        orderAsc: true,
+        orderColumn: 'fecha',
+        toggledSidebar: '',
+        currentPage: 'table',
     },
     getters: {
         count24h: state => state.reservas24h.length,
@@ -53,11 +57,11 @@ const store = new Vuex.Store({
         },
         setReservas(state, reservas) {
             state.reservas = reservas;
+            this.commit('sortReservas');
             state.loading = false;
         },
         setReservas24h(state, reservas24h) {
             state.reservas24h = reservas24h;
-            // state.reservas24h = data.sort((a, b) => a.fecha > b.fecha ? 1 : -1);
         },
         setCount24h(state, count24h) {
             state.count24h = count24h;
@@ -74,6 +78,7 @@ const store = new Vuex.Store({
         view24h(state) {
             state.viendo24h = true;
             state.reservas = state.reservas24h;
+            this.commit('sortReservas');
         },
         setViendo24h(state, value) {
             state.viendo24h = value;
@@ -90,6 +95,24 @@ const store = new Vuex.Store({
         },
         addError(state, error) {
             state.errors.push(error);
+        },
+        setOrderColumn(state, value) {
+            state.orderColumn = value;
+        },
+        setOrderAsc(state, value) {
+            state.orderAsc = value;
+        },
+        sortReservas(state) {
+            const reservas = state.reservas;
+            if (state.orderAsc) {
+                reservas.sort((a, b) => a[state.orderColumn] > b[state.orderColumn] ? 1 : -1);
+            } else {
+                reservas.sort((a, b) => a[state.orderColumn] < b[state.orderColumn] ? 1 : -1);
+            }
+            state.reservas = reservas;
+        },
+        toggleSidebar(state) {
+            state.toggledSidebar = (state.toggledSidebar === '' ? 'toggled' : '');
         }
     },
     actions: {
@@ -104,12 +127,12 @@ const store = new Vuex.Store({
             commit('setReservas24h', data);
             commit('setCount24h', data.length);
         },
-        getReserva: async function({commit}, id) {
+        getReserva: async function({ commit }, id) {
             const res = await fetch('/ajax/reservas/' + id);
             const data = await res.json();
             commit('setReserva', data);
         },
-        storeReserva: async function({commit, state, dispatch}, id = '') {
+        storeReserva: async function({ commit, state, dispatch }, id = '') {
             id = (id === null ? '' : id);
             let url = '/ajax/reservas/' + id;
             let type = 'POST';
@@ -138,6 +161,7 @@ const app = new Vue({
     methods:{
         comprueba24h: function () {
             store.dispatch('getReservas24h');
+            // TODO: Descomentar el setInterval
             // setInterval(function () {
             //     store.dispatch('getReservas24h')
             // }, 6000);
