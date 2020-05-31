@@ -10,9 +10,16 @@ Vue.component('topbar', {
             <!-- Topbar Search -->
             <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
                 <div class="input-group">
-                    <input @keyup="search" v-model="text" class="form-control bg-light border-0 small" placeholder="Buscar cliente..." aria-label="Buscar" aria-describedby="basic-addon2">
+                    <input @keyup="search" v-model="texto" class="form-control bg-light border-0 small" placeholder="Buscar cliente..." aria-label="Buscar" aria-describedby="basic-addon2">
+                </div>
+            </form>
+            
+            <form class="d-none d-sm-inline form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+                <div class="input-group">
+                    <input v-model="fechaDesde" class="form-control bg-light border-0 small" placeholder="Fecha desde..." aria-label="Buscar" aria-describedby="basic-addon2">
+                    <input v-model="fechaHasta" class="form-control bg-light border-0 small" placeholder="Fecha hasta..." aria-label="Buscar" aria-describedby="basic-addon2">
                     <div class="input-group-append">
-                        <button class="btn btn-primary" type="button">
+                        <button @click="filtrarPorFecha" class="btn btn-primary" type="button">
                             <i class="fas fa-search fa-sm"></i>
                         </button>
                     </div>
@@ -31,7 +38,7 @@ Vue.component('topbar', {
                   <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in" aria-labelledby="searchDropdown">
                     <form class="form-inline mr-auto w-100 navbar-search">
                       <div class="input-group">
-                        <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
+                        <input @keyup="search" v-model="texto" class="form-control bg-light border-0 small" placeholder="Buscar cliente..." aria-label="Search" aria-describedby="basic-addon2">
                         <div class="input-group-append">
                           <button class="btn btn-primary" type="button">
                             <i class="fas fa-search fa-sm"></i>
@@ -92,7 +99,9 @@ Vue.component('topbar', {
     `,
     data() {
         return {
-            text: '',
+            texto: '',
+            fechaDesde: '',
+            fechaHasta: '',
         }
     },
     methods: {
@@ -106,7 +115,32 @@ Vue.component('topbar', {
             this.$store.commit('setPageTitle', 'Reservas');
         },
         search: function() {
-            this.$store.commit('updateSearch', this.text);
+            this.$store.commit('setSearch', this.texto);
+        },
+        filtrarPorFecha: function() {
+            let fechaDesde;
+            let fechaHasta;
+
+            try {
+                let desdeParts = this.fechaDesde.split("/");
+                // Los meses empiezan en 0, por eso necesitamos desdeParts[1] - 1
+                fechaDesde = new Date(+desdeParts[2], desdeParts[1] - 1, +desdeParts[0]);
+            } catch {
+                // TODO Mostrar al usuario el error
+                fechaDesde = '';
+            }
+
+            try {
+                let hastaParts = this.fechaHasta.split("/");
+                fechaHasta = new Date(+hastaParts[2], hastaParts[1] - 1, +hastaParts[0]);
+            } catch {
+                // TODO Mostrar al usuario el error
+                fechaHasta = '';
+            }
+
+
+            this.$store.commit('setFechaDesde', fechaDesde);
+            this.$store.commit('setFechaHasta', fechaHasta);
         }
     },
     computed: {

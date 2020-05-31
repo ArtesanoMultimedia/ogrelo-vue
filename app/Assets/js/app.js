@@ -13,14 +13,36 @@ const store = new Vuex.Store({
         reservas: {},
         reservas24h: {},
         viendo24h: false,
-        search: '',
         pageTitle: 'Reservas',
         errors: [],
+        search: '',
+        fechaDesde: '',
+        fechaHasta: '',
     },
     getters: {
         count24h: state => state.reservas24h.length,
         reservasFiltradas: (state) => {
             return state.reservas.filter(reserva => {
+                let fechaDesde;
+                let fechaHasta;
+                // Por si no tenemos fechas por las que filtrar o no son válidas,
+                // las intentamos parsear dentro de un try - catch
+                try {
+                    fechaDesde = Date.parse(state.fechaDesde);
+                    // Si la línea anterior no tira error, filtramos por fecha:
+                    if (Date.parse(reserva.fecha) < fechaDesde) {
+                        return false;
+                    }
+                } catch {}
+                try {
+                    fechaHasta= Date.parse(state.fechaHasta);
+                    if (Date.parse(reserva.fecha) > fechaHasta) {
+                        return false;
+                    }
+                } catch {}
+
+                // Si llegamos hasta aquí es porque o bien no había fechas o bien la reserva
+                // cumple el filtro de las fechas
                 return (`${reserva.nombre} ${reserva.apellidos}`).toLowerCase().includes(state.search.toLowerCase())
             })
         }
@@ -40,8 +62,14 @@ const store = new Vuex.Store({
         setCount24h(state, count24h) {
             state.count24h = count24h;
         },
-        updateSearch(state, value) {
+        setSearch(state, value) {
             state.search = value;
+        },
+        setFechaDesde(state, value) {
+            state.fechaDesde = value;
+        },
+        setFechaHasta(state, value) {
+            state.fechaHasta = value;
         },
         view24h(state) {
             state.viendo24h = true;
