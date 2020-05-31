@@ -32,15 +32,21 @@ Para el Backend:
 
 ### /app
 
-Contiene los archivos específicos del proyecto. El CSS y el Javascript, en la carpeta `Assets`, y los Modelos, Vistas y Controladores.
+Contiene los archivos específicos del proyecto. El CSS y el Javascript de la aplicación, en la carpeta `Assets`, y los Modelos y Controladores del backend. También el html base de la aplicación.
 
-#### `/app/Assets`
 
-Contiene el css, generado a partir de SCSS. También se incluiría aquí el javascript genérico. Aunque actualmente, el javascript se implementa directamente dentro de las vistas, acercándolo a la distribución que tendrá en la práctica de Vue (template y script en el mismo archivo).
+
+#### `/app/Assets/css`
+
+Contiene el css, generado a partir de SCSS.
+
+#### `/app/Assets/js`
+
+Contiene la definición de la aplicación Vue en `app.js` así como la store de Vuex en `store.js`. En este último archivo se definen los datos y todos los métodos de Vuex: mutaciones, getters, acciones,...
 
 #### `/app/Controllers`
 
-Los controladores extienden a core/ControladorBase. Las funciones de comportamiento genérico, están definidas en la clase padre y en la clase hija sólo se sobreescriben las funciones que necesiten un comportamiento diferente al genérico o se escriben nuevas funciones específicas del dominio.
+Los controladores del Backend que extienden a core/ControladorBase. Las funciones de comportamiento genérico, están definidas en la clase padre y en la clase hija sólo se sobreescriben las funciones que necesiten un comportamiento diferente al genérico o se escriben nuevas funciones específicas del dominio.
 
 #### `/app/Modelos`
 
