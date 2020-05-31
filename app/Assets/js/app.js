@@ -68,7 +68,6 @@ const store = new Vuex.Store({
         },
         setReservas(state, reservas) {
             state.reservas = reservas;
-            this.commit('sortReservas');
             state.loading = false;
         },
         setReservas24h(state, reservas24h) {
@@ -115,11 +114,27 @@ const store = new Vuex.Store({
         },
         sortReservas(state) {
             const reservas = state.reservas;
-
-            if (state.orderAsc) {
-                reservas.sort((a, b) => a[state.orderColumn] > b[state.orderColumn] ? 1 : -1);
-            } else {
-                reservas.sort((a, b) => a[state.orderColumn] < b[state.orderColumn] ? 1 : -1);
+            // Como he pasado las fechas a formato es-ES (dd/mm/yyyy HH:MM) cuando las recibo de la base de datos,
+            // Si dejo la comparación por defecto, ordenará primero por día, luego por mes, luego por año...
+            // Añado también paso a minúsculas para la ordenación de strings.
+            if (state.orderColumn === 'fecha') {
+                if (state.orderAsc) {
+                    reservas.sort((a, b) => new Date(a.fecha) > new Date(b.fecha) ? 1 : -1);
+                } else {
+                    reservas.sort((a, b) => new Date(a.fecha) < new Date(b.fecha) ? 1 : -1);
+                }
+            } else if(state.orderColumn === 'nombre' || state.orderColumn === 'apellidos') {
+                if (state.orderAsc) {
+                    reservas.sort((a, b) => a[state.orderColumn].toLowerCase() > b[state.orderColumn].toLowerCase() ? 1 : -1);
+                } else {
+                    reservas.sort((a, b) => a[state.orderColumn].toLowerCase() < b[state.orderColumn].toLowerCase() ? 1 : -1);
+                }
+            } else if(state.orderColumn === 'comensales') {
+                if (state.orderAsc) {
+                    reservas.sort((a, b) => parseInt(a[state.orderColumn]) > parseInt(b[state.orderColumn]) ? 1 : -1);
+                } else {
+                    reservas.sort((a, b) => parseInt(a[state.orderColumn]) < parseInt(b[state.orderColumn]) ? 1 : -1);
+                }
             }
             state.reservas = reservas;
         },
@@ -146,17 +161,30 @@ const store = new Vuex.Store({
         getReservas: async function({ commit }) {
             const res = await fetch('/ajax/reservas');
             const data = await res.json();
+            data.forEach(reserva => {
+                let date = new Date(reserva.fecha);
+                let options = {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'};
+                reserva.fecha = date.toLocaleString('es-ES', options);
+            });
             commit('setReservas', data);
         },
         getReservas24h: async function({ commit }) {
             const res = await fetch('/ajax/reservas/proximas24horas');
             const data = await res.json();
+            data.forEach(reserva => {
+                let date = new Date(reserva.fecha);
+                let options = {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'};
+                reserva.fecha = date.toLocaleString('es-ES', options);
+            });
             commit('setReservas24h', data);
             commit('setCount24h', data.length);
         },
         getReserva: async function({ commit }, id) {
             const res = await fetch('/ajax/reservas/' + id);
             const data = await res.json();
+            let date = new Date(data.fecha);
+            let options = {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'};
+            data.fecha = date.toLocaleString('es-ES', options);
             commit('setReserva', data);
         },
         storeReserva: async function({ commit, state, dispatch }, id = '') {

@@ -12,23 +12,23 @@ Vue.component('reservas-table', {
                     <tr>
                         <th @click="ordenaNombre" class="pointer">
                             <i v-if="orderColumn != 'nombre'" class="fas fa-sort"></i>
-                            <i v-else-if="orderAsc" class="fas fa-sort-down"></i>
-                            <i v-else="orderAsc" class="fas fa-sort-up"></i>
+                            <i v-else-if="orderAsc" class="fas fa-sort-up"></i>
+                            <i v-else="orderAsc" class="fas fa-sort-down"></i>
                              Nombre</th>
                         <th @click="ordenaApellidos" class="pointer">
                             <i v-if="orderColumn != 'apellidos'" class="fas fa-sort"></i>
-                            <i v-else-if="orderAsc" class="fas fa-sort-down"></i>
-                            <i v-else="orderAsc" class="fas fa-sort-up"></i>
+                            <i v-else-if="orderAsc" class="fas fa-sort-up"></i>
+                            <i v-else="orderAsc" class="fas fa-sort-down"></i>
                              Apellidos</th>
                         <th @click="ordenaFecha" class="pointer">
                             <i v-if="orderColumn != 'fecha'" class="fas fa-sort"></i>
-                            <i v-else-if="orderAsc" class="fas fa-sort-down"></i>
-                            <i v-else="orderAsc" class="fas fa-sort-up"></i>
+                            <i v-else-if="orderAsc" class="fas fa-sort-up"></i>
+                            <i v-else="orderAsc" class="fas fa-sort-down"></i>
                              Fecha</th>
                         <th @click="ordenaComensales" class="pointer">
                             <i v-if="orderColumn != 'comensales'" class="fas fa-sort"></i>
-                            <i v-else-if="orderAsc" class="fas fa-sort-down"></i>
-                            <i v-else="orderAsc" class="fas fa-sort-up"></i>
+                            <i v-else-if="orderAsc" class="fas fa-sort-up"></i>
+                            <i v-else="orderAsc" class="fas fa-sort-down"></i>
                              Comensales</th>
                         <th>Acciones</th>
                     </tr>
