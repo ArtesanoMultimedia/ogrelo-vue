@@ -22,6 +22,17 @@ const store = new Vuex.Store({
         orderColumn: 'fecha',
         toggledSidebar: '',
         currentPage: 'table',
+        showDetalleModal: false,
+        showFormModal: false,
+        formTitle: '',
+        validClass: {
+            nombre: '',
+            apellidos: '',
+            telefono: '',
+            fecha: '',
+            comensales: '',
+            comentarios: '',
+        },
     },
     getters: {
         count24h: state => state.reservas24h.length,
@@ -113,7 +124,22 @@ const store = new Vuex.Store({
         },
         toggleSidebar(state) {
             state.toggledSidebar = (state.toggledSidebar === '' ? 'toggled' : '');
-        }
+        },
+        setShowFormModal(state, value) {
+            state.showFormModal = value;
+        },
+        openFormModal(state) {
+            this.commit('emptyErrors');
+            this.commit('emptyValidClass');
+            state.formTitle = 'Nueva reserva';
+            state.showFormModal = true;
+        },
+        openDetalleModal(state) {
+            state.showDetalleModal = true;
+        },
+        emptyValidClass(state) {
+            Object.keys(state.validClass).forEach(item => state.validClass[item] = '');
+        },
     },
     actions: {
         getReservas: async function({ commit }) {

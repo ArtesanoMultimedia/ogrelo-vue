@@ -6,7 +6,7 @@ Vue.component('page-content', {
             <!-- Page Heading -->
             <div class="d-sm-flex align-items-center justify-content-between mb-4">
                 <h1 class="h3 mb-0 text-gray-800">{{pageTitle}}</h1>
-                <button class="btn btn-primary">Nueva</button>
+                <button @click="nueva" class="btn btn-primary">Nueva</button>
             </div>
     
             <!-- Content Row -->
@@ -14,13 +14,19 @@ Vue.component('page-content', {
             
                 <reservas-table v-if="currentPage === 'table'"></reservas-table>     
             
-                <reservas-form v-else-if="currentPage === 'form'"></reservas-form>
-            
+                <form-modal></form-modal>
+                <detalle-modal></detalle-modal>
             </div>
             
         </div>
         <!-- /.container-fluid -->
     `,
+    methods: {
+        nueva: function() {
+            this.$store.commit('emptyReserva');
+            this.$store.commit('openFormModal', 'Nueva reserva');
+        },
+    },
     computed: {
         ...Vuex.mapState(['pageTitle', 'currentPage'])
     }
