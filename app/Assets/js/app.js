@@ -115,6 +115,7 @@ const store = new Vuex.Store({
         },
         sortReservas(state) {
             const reservas = state.reservas;
+
             if (state.orderAsc) {
                 reservas.sort((a, b) => a[state.orderColumn] > b[state.orderColumn] ? 1 : -1);
             } else {
@@ -176,7 +177,7 @@ const store = new Vuex.Store({
 });
 
 // Fix para que se muestre la pestaña de VUE en DevTools
-Vue.config.devtools = true;
+// Vue.config.devtools = true;
 
 const app = new Vue({
     el: '#wrapper',
@@ -187,10 +188,9 @@ const app = new Vue({
     methods:{
         comprueba24h: function () {
             store.dispatch('getReservas24h');
-            // TODO: Descomentar el setInterval
-            // setInterval(function () {
-            //     store.dispatch('getReservas24h')
-            // }, 6000);
+            setInterval(function () {
+                store.dispatch('getReservas24h')
+            }, 6000);
         }
     },
     mounted () {
@@ -199,4 +199,4 @@ const app = new Vue({
 });
 
 // Fix para que se muestre la pestaña de VUE en DevTools
-window.__VUE_DEVTOOLS_GLOBAL_HOOK__.Vue = app.constructor;
+// window.__VUE_DEVTOOLS_GLOBAL_HOOK__.Vue = app.constructor;

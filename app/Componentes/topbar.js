@@ -8,13 +8,13 @@ Vue.component('topbar', {
             </button>
             
             <!-- Topbar Search -->
-            <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+            <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100">
                 <div class="input-group">
                     <input @keyup="search" v-model="texto" class="form-control bg-light border-0 small" placeholder="Buscar cliente..." aria-label="Buscar" aria-describedby="basic-addon2">
                 </div>
             </form>
             
-            <form class="d-none d-sm-inline form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+            <form class="d-none d-sm-inline form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100">
                 <div class="input-group">
                     <input v-model="fechaDesde" class="form-control bg-light border-0 small" placeholder="Fecha desde..." aria-label="Buscar" aria-describedby="basic-addon2">
                     <input v-model="fechaHasta" class="form-control bg-light border-0 small" placeholder="Fecha hasta..." aria-label="Buscar" aria-describedby="basic-addon2">
@@ -62,7 +62,7 @@ Vue.component('topbar', {
                     <h6 class="dropdown-header">
                       Reservas en las próximas 24 horas
                     </h6>
-                    <a v-for="reserva in reservas24h" class="dropdown-item d-flex align-items-center" href="#">
+                    <a v-for="reserva in reservas24h" @click="detalle(reserva.id)" class="dropdown-item d-flex align-items-center" href="#">
                       <div class="mr-3">
                         <div class="icon-circle bg-primary">
                           <i class="fas fa-file-alt text-white"></i>
@@ -106,6 +106,10 @@ Vue.component('topbar', {
         },
         search: function() {
             this.$store.commit('setSearch', this.texto);
+        },
+        detalle: function (id) {
+            this.$store.dispatch('getReserva', id);
+            this.$store.commit('openDetalleModal', 'Editar reserva');
         },
         filtrarPorFecha: function() {
             let fechaDesde;
