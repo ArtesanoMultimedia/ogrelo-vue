@@ -4,13 +4,6 @@ use OGrelo\core\ControladorBase;
 
 class ReservasController extends ControladorBase
 {
-//    public function ajaxindex() {
-//        $entidad = new $this->model();
-//        $registros = $entidad->index();
-//        header('Content-type: Application-json');
-//        echo json_encode($registros);
-//    }
-
     public function ajaxindex24horas()
     {
         $entidad = new $this->model();
@@ -20,5 +13,4 @@ class ReservasController extends ControladorBase
         header('Content-type: Application-json');
         echo json_encode($registros);
     }
-
 }
